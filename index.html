@@ -135,9 +135,35 @@ h2.section-title { font-family: var(--display); font-size: clamp(2rem, 4vw, 3.2r
 .pill-amber { background: rgba(245,158,11,0.12); color: #fde68a; border: 1px solid rgba(245,158,11,0.25); }
 .pill-violet { background: rgba(139,92,246,0.12); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.25); }
 @media(max-width:900px){.two-col,.arch-cols,.decisions-grid{grid-template-columns:1fr!important;} nav .nav-links{display:none;} .hero-title{font-size:clamp(2.6rem,9vw,4rem);} .hero-stats{gap:1.5rem;} }
+/* ── CURSOR GLOW ── */
+#cursor-glow{position:fixed;width:320px;height:320px;border-radius:50%;pointer-events:none;z-index:9999;background:radial-gradient(circle,rgba(99,102,241,0.12) 0%,transparent 70%);transform:translate(-50%,-50%);transition:opacity 0.3s;opacity:0;mix-blend-mode:screen;}
+/* ── MAGNETIC BTN ── */
+.btn-primary,.btn-ghost{position:relative;transform-style:preserve-3d;will-change:transform;}
+/* ── CARD TILT ── */
+.tilt-card{transform-style:preserve-3d;transition:transform 0.1s ease-out,box-shadow 0.2s;}
+/* ── STUDENT STORY ── */
+#story-section{position:relative;padding:120px 0;background:var(--bg);overflow:hidden;}
+#story-canvas{display:block;width:100%;height:460px;border-radius:var(--radius);border:1px solid var(--border);background:rgba(0,0,0,0.5);cursor:default;}
+.story-phases{display:flex;gap:0.75rem;justify-content:center;margin-top:1.2rem;flex-wrap:wrap;}
+.story-phase-btn{padding:0.45rem 1.1rem;border-radius:999px;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.25s;border:1px solid var(--border);background:var(--surface);color:var(--text3);font-family:var(--mono);}
+.story-phase-btn.active{background:rgba(99,102,241,0.2);border-color:var(--indigo);color:var(--indigo-light);}
+/* ── 3D HERO ── */
+#hero-3d{position:absolute;inset:0;z-index:1;}
+/* ── GCN NEURAL ANIM ── */
+#gcnCanvas{display:block;width:100%;height:320px;border-radius:var(--radius);background:rgba(0,0,0,0.5);border:1px solid var(--border);margin-top:1.2rem;}
+.inference-btn{margin-top:0.85rem;width:100%;}
+/* ── RAG FLOW ── */
+.rag-flow-track{position:relative;overflow:hidden;}
+.rag-particle-layer{position:absolute;inset:0;pointer-events:none;}
+/* ── SCROLL REVEAL SCALE ── */
+.reveal-scale{opacity:0;transform:translateY(24px) scale(0.97);transition:opacity 0.7s cubic-bezier(.16,1,.3,1),transform 0.7s cubic-bezier(.16,1,.3,1);}
+.reveal-scale.visible{opacity:1;transform:none;}
+/* ── SECTION COUNTER ── */
+.section-counter{font-family:var(--mono);font-size:5rem;font-weight:700;color:rgba(99,102,241,0.06);position:absolute;right:6vw;top:4rem;line-height:1;pointer-events:none;user-select:none;}
 </style>
 </head>
 <body>
+<div id="cursor-glow"></div>
 
 <!-- NAV -->
 <nav id="navbar">
@@ -183,6 +209,44 @@ h2.section-title { font-family: var(--display); font-size: clamp(2rem, 4vw, 3.2r
     <div class="scroll-line"></div>
     <span>Scroll</span>
   </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- STUDENT STORY SECTION -->
+<section id="story-section">
+<div class="section-counter">01</div>
+<div class="container">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;" class="two-col">
+    <div class="reveal-scale">
+      <p class="section-label">The Problem</p>
+      <h2 class="section-title">One student struggles.<br/><span class="grad-text-warm">Nobody notices.</span></h2>
+      <p class="lead">Traditional education serves the average. A student failing "Trees" because they never truly grasped "Pointers" gets the same lecture as everyone else. The curriculum has no memory of their gaps.</p>
+      <div style="margin-top:2rem;display:flex;flex-direction:column;gap:1rem;">
+        <div class="glass tilt-card" style="padding:1.1rem 1.4rem;border-radius:var(--radius-sm);display:flex;gap:1rem;align-items:flex-start;">
+          <div style="font-size:1.3rem;margin-top:0.1rem;">😶</div>
+          <div><div style="font-weight:600;font-size:0.9rem;margin-bottom:0.2rem;">Static Syllabi</div><div style="font-size:0.8rem;color:var(--text3);">Every student gets question #7 — regardless of whether they've mastered question #3.</div></div>
+        </div>
+        <div class="glass tilt-card" style="padding:1.1rem 1.4rem;border-radius:var(--radius-sm);display:flex;gap:1rem;align-items:flex-start;">
+          <div style="font-size:1.3rem;margin-top:0.1rem;">🔗</div>
+          <div><div style="font-weight:600;font-size:0.9rem;margin-bottom:0.2rem;">Invisible Prerequisites</div><div style="font-size:0.8rem;color:var(--text3);">Knowledge gaps cascade silently. You can't see that "BST" failure is rooted in a missing "Pointer" concept from week 2.</div></div>
+        </div>
+        <div class="glass tilt-card" style="padding:1.1rem 1.4rem;border-radius:var(--radius-sm);display:flex;gap:1rem;align-items:flex-start;">
+          <div style="font-size:1.3rem;margin-top:0.1rem;">🚨</div>
+          <div><div style="font-weight:600;font-size:0.9rem;margin-bottom:0.2rem;">Intervention Too Late</div><div style="font-size:0.8rem;color:var(--text3);">By the time failure is visible in an exam, the student has already lost weeks of foundational learning.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal-scale" style="transition-delay:0.15s;">
+      <canvas id="storyCanvas" style="display:block;width:100%;height:420px;border-radius:var(--radius);border:1px solid var(--border);background:rgba(0,0,0,0.45);"></canvas>
+      <div class="story-phases">
+        <button class="story-phase-btn active" data-phase="0">😕 Chaos</button>
+        <button class="story-phase-btn" data-phase="1">🔴 Gaps Found</button>
+        <button class="story-phase-btn" data-phase="2">✅ Resolved</button>
+      </div>
+    </div>
+  </div>
+</div>
 </section>
 
 <div class="section-divider"></div>
@@ -270,6 +334,15 @@ h2.section-title { font-family: var(--display); font-size: clamp(2rem, 4vw, 3.2r
         </div>
       </div>
     </div>
+      <div class="glass" style="padding:1.2rem 1.5rem; border-radius:var(--radius); margin-bottom:1.2rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+          <div style="font-family:var(--display);font-weight:600;font-size:0.95rem;">Live Neural Network</div>
+          <span class="pill pill-indigo" style="font-size:0.7rem;">2-Layer GCN</span>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text3);margin-bottom:0.75rem;">Signal propagates through graph layers. Grey nodes = MC Dropout. Brighter = higher mastery.</div>
+        <canvas id="gcnCanvas" style="display:block;width:100%;height:190px;border-radius:10px;background:rgba(0,0,0,0.5);border:1px solid var(--border);"></canvas>
+        <button id="gcnInferBtn" class="btn-primary" style="margin-top:0.75rem;padding:0.6rem;font-size:0.85rem;width:100%;border:none;cursor:pointer;">&#9654; Run Inference</button>
+      </div>
     <div class="reveal reveal-delay-2">
       <div class="glass" style="padding:1.8rem; border-radius:var(--radius);">
         <div style="font-family:var(--display); font-weight:600; font-size:1rem; margin-bottom:0.4rem;">Monte Carlo Dropout Simulator</div>
@@ -902,6 +975,455 @@ window.addEventListener('scroll',()=>{
   const nav=document.getElementById('navbar');
   if(nav)nav.style.background=window.scrollY>60?'rgba(2,5,9,0.96)':'rgba(2,5,9,0.8)';
 });
+
+// ── THREE.JS NEURAL NETWORK HERO ─────────────────────────────────────
+(function(){
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js';
+  script.onload = initThreeHero;
+  document.head.appendChild(script);
+
+  function initThreeHero(){
+    const hero = document.getElementById('hero');
+    const container = document.createElement('div');
+    container.id = 'hero-3d';
+    container.style.cssText = 'position:absolute;inset:0;z-index:1;pointer-events:none;';
+    hero.insertBefore(container, hero.firstChild);
+
+    const W = container.clientWidth || window.innerWidth;
+    const H = container.clientHeight || window.innerHeight;
+    const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x020509, 0.035);
+    const camera = new THREE.PerspectiveCamera(55, W/H, 0.1, 200);
+    camera.position.set(0, 0, 28);
+
+    // Nodes
+    const nodeCount = window.innerWidth < 768 ? 18 : 32;
+    const nodes = [];
+    const nodeMat = new THREE.MeshBasicMaterial({color:0x6366f1, transparent:true, opacity:0.85});
+    for(let i=0;i<nodeCount;i++){
+      const geo = new THREE.SphereGeometry(0.18 + Math.random()*0.22, 8, 8);
+      const mat = nodeMat.clone();
+      mat.color.setHSL(0.62 + Math.random()*0.15, 0.9, 0.55 + Math.random()*0.25);
+      const mesh = new THREE.Mesh(geo, mat);
+      const spread = 18;
+      mesh.position.set((Math.random()-0.5)*spread,(Math.random()-0.5)*spread*0.7,(Math.random()-0.5)*10);
+      mesh.userData = {phase: Math.random()*Math.PI*2, speed: 0.4+Math.random()*0.8, baseOpacity: 0.4+Math.random()*0.5, baseX: mesh.position.x, baseY: mesh.position.y};
+      scene.add(mesh);
+      nodes.push(mesh);
+    }
+
+    // Edges
+    const edges = [];
+    const edgeMat = new THREE.LineBasicMaterial({color:0x6366f1, transparent:true, opacity:0.12});
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        if(nodes[i].position.distanceTo(nodes[j].position) < 8){
+          const geo = new THREE.BufferGeometry().setFromPoints([nodes[i].position, nodes[j].position]);
+          const line = new THREE.Line(geo, edgeMat.clone());
+          scene.add(line);
+          edges.push({line, i, j});
+        }
+      }
+    }
+
+    let mouseX=0, mouseY=0;
+    document.addEventListener('mousemove', e=>{
+      mouseX = (e.clientX/window.innerWidth-0.5)*2;
+      mouseY = (e.clientY/window.innerHeight-0.5)*2;
+    });
+
+    let t=0;
+    function animate(){
+      requestAnimationFrame(animate);
+      t += 0.008;
+      nodes.forEach(n=>{
+        const d = n.userData;
+        n.material.opacity = d.baseOpacity*(0.5+0.5*Math.sin(t*d.speed+d.phase));
+        n.position.x = d.baseX + Math.sin(t*0.3+d.phase)*0.3;
+        n.position.y = d.baseY + Math.cos(t*0.25+d.phase)*0.25;
+      });
+      edges.forEach(e=>{
+        const pts = [nodes[e.i].position, nodes[e.j].position];
+        e.line.geometry.setFromPoints(pts);
+        e.line.material.opacity = 0.06 + 0.08*Math.sin(t+e.i);
+      });
+      camera.position.x += (mouseX*2 - camera.position.x)*0.04;
+      camera.position.y += (-mouseY*1.2 - camera.position.y)*0.04;
+      camera.lookAt(0,0,0);
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize',()=>{
+      const nW=container.clientWidth, nH=container.clientHeight;
+      camera.aspect=nW/nH; camera.updateProjectionMatrix();
+      renderer.setSize(nW,nH);
+    });
+
+    // Hide old starfield canvas
+    const sf=document.getElementById('starfield');
+    if(sf){sf.style.opacity='0.25'; sf.style.zIndex='0';}
+  }
+})();
+
+// ── CURSOR GLOW ───────────────────────────────────────────────────────
+(function(){
+  const glow = document.getElementById('cursor-glow');
+  if(!glow) return;
+  let mx=0,my=0,cx=0,cy=0;
+  document.addEventListener('mousemove', e=>{
+    mx=e.clientX; my=e.clientY;
+    glow.style.opacity='1';
+  });
+  document.addEventListener('mouseleave',()=>glow.style.opacity='0');
+  function loop(){
+    cx+=(mx-cx)*0.12; cy+=(my-cy)*0.12;
+    glow.style.left=cx+'px'; glow.style.top=cy+'px';
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+// ── MAGNETIC BUTTONS ─────────────────────────────────────────────────
+document.querySelectorAll('.btn-primary,.btn-ghost').forEach(btn=>{
+  btn.addEventListener('mousemove', e=>{
+    const r=btn.getBoundingClientRect();
+    const x=(e.clientX-r.left-r.width/2)*0.35;
+    const y=(e.clientY-r.top-r.height/2)*0.35;
+    btn.style.transform=`translate(${x}px,${y}px)`;
+  });
+  btn.addEventListener('mouseleave',()=>btn.style.transform='');
+});
+
+// ── CARD TILT ────────────────────────────────────────────────────────
+document.querySelectorAll('.tilt-card,.decision-card,.glass').forEach(card=>{
+  card.addEventListener('mousemove', e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-0.5;
+    const y=(e.clientY-r.top)/r.height-0.5;
+    card.style.transform=`perspective(600px) rotateX(${-y*6}deg) rotateY(${x*6}deg) translateZ(4px)`;
+  });
+  card.addEventListener('mouseleave',()=>{card.style.transform='';});
+});
+
+// ── STORY CANVAS — Illustrated Student Scene ─────────────────────────
+(function(){
+  const canvas=document.getElementById('storyCanvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  let W,H,phase=0,animT=0,phaseT=0;
+
+  const CONCEPTS=[
+    {label:'Arrays',    cx:0.62,cy:0.18,tx:0.60,ty:0.22,weak:false,color:'#6366f1'},
+    {label:'Pointers',  cx:0.90,cy:0.30,tx:0.75,ty:0.38,weak:true, color:'#ef4444'},
+    {label:'LinkedList',cx:0.55,cy:0.50,tx:0.60,ty:0.54,weak:false,color:'#6366f1'},
+    {label:'Recursion', cx:0.85,cy:0.60,tx:0.75,ty:0.54,weak:false,color:'#6366f1'},
+    {label:'Trees',     cx:0.68,cy:0.72,tx:0.60,ty:0.70,weak:true, color:'#ef4444'},
+    {label:'BST Ops',   cx:0.92,cy:0.78,tx:0.75,ty:0.70,weak:true, color:'#ef4444'},
+    {label:'Graphs',    cx:0.58,cy:0.85,tx:0.60,ty:0.86,weak:false,color:'#10b981'},
+    {label:'Sorting',   cx:0.80,cy:0.88,tx:0.75,ty:0.86,weak:false,color:'#10b981'},
+  ];
+  const EDGES=[[0,2],[2,4],[4,6],[6,7],[1,2],[3,4],[5,4],[2,3]];
+  const QMARKS=Array.from({length:10},(_,i)=>({
+    x:0.08+Math.random()*0.30,y:0.08+Math.random()*0.55,
+    char:['?','?','!','??','!?','?!'][i%6],speed:0.0003+Math.random()*0.0005,
+    size:9+Math.random()*8,phase:Math.random()*Math.PI*2,alpha:0.22+Math.random()*0.35,
+  }));
+
+  function resize(){
+    const dpr=Math.min(window.devicePixelRatio,2);
+    const rect=canvas.parentElement.getBoundingClientRect();
+    W=canvas.width=rect.width*dpr; H=canvas.height=Math.round(420*dpr);
+    canvas.style.width=rect.width+'px'; canvas.style.height='420px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  const lerp=(a,b,t)=>a+(b-a)*Math.min(1,Math.max(0,t));
+  const easeOut=t=>1-(1-t)*(1-t);
+
+  function drawStudent(w,h,t){
+    const deskY=h*0.85,deskX=w*0.03,deskW=w*0.40;
+    // Desk
+    const dg=ctx.createLinearGradient(deskX,deskY,deskX,deskY+36);
+    dg.addColorStop(0,'rgba(51,65,85,0.95)');dg.addColorStop(1,'rgba(30,41,59,0.65)');
+    ctx.fillStyle=dg; ctx.beginPath(); ctx.roundRect(deskX,deskY,deskW,36,4); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(deskX,deskY); ctx.lineTo(deskX+deskW,deskY);
+    ctx.strokeStyle='rgba(99,102,241,0.4)'; ctx.lineWidth=1.5; ctx.stroke();
+    // Laptop screen
+    const lapX=deskX+deskW*0.55,lapY=deskY-62,lapW=66,lapH=42;
+    const ga=phase>=2?0.42:0.07+0.05*Math.sin(t*1.5);
+    const sg=ctx.createRadialGradient(lapX,lapY+lapH/2,2,lapX,lapY+lapH/2,lapW);
+    sg.addColorStop(0,`rgba(99,102,241,${ga})`); sg.addColorStop(1,'transparent');
+    ctx.fillStyle=sg; ctx.fillRect(lapX-lapW,lapY-12,lapW*2,lapH*1.8);
+    ctx.beginPath(); ctx.roundRect(lapX-lapW/2,lapY,lapW,lapH,4);
+    ctx.fillStyle='rgba(15,23,42,0.97)'; ctx.fill();
+    ctx.strokeStyle=phase>=2?'rgba(16,185,129,0.55)':'rgba(99,102,241,0.3)'; ctx.lineWidth=1.5; ctx.stroke();
+    const lc=phase>=2?'rgba(16,185,129,0.55)':'rgba(99,102,241,0.3)';
+    [0.3,0.52,0.72].forEach((f,i)=>{
+      ctx.beginPath(); ctx.moveTo(lapX-lapW/2+8,lapY+lapH*f);
+      ctx.lineTo(lapX-lapW/2+8+(lapW-16)*(0.35+0.55*Math.sin(t*0.8+i)),lapY+lapH*f);
+      ctx.strokeStyle=lc; ctx.lineWidth=1.5; ctx.stroke();
+    });
+    ctx.beginPath(); ctx.moveTo(lapX-lapW/2-4,deskY); ctx.lineTo(lapX+lapW/2+4,deskY);
+    ctx.strokeStyle='rgba(51,65,85,0.9)'; ctx.lineWidth=7; ctx.stroke();
+    // Student body
+    const stuX=w*0.18,sShY=deskY-32,hunch=phase>=2?0:14;
+    ctx.beginPath(); ctx.moveTo(stuX-17,deskY+2);
+    ctx.bezierCurveTo(stuX-17,sShY+hunch,stuX+17,sShY+hunch,stuX+17,deskY+2);
+    ctx.fillStyle='rgba(67,56,202,0.75)'; ctx.fill();
+    ctx.strokeStyle='rgba(99,102,241,0.3)'; ctx.lineWidth=1; ctx.stroke();
+    // Arms
+    ctx.beginPath(); ctx.moveTo(stuX-17,sShY+hunch+10);
+    ctx.bezierCurveTo(stuX-20,deskY-4,lapX-42,deskY-3,lapX-28,deskY-3);
+    ctx.strokeStyle='rgba(67,56,202,0.7)'; ctx.lineWidth=9; ctx.lineCap='round'; ctx.stroke(); ctx.lineCap='butt';
+    // Head halo
+    const hdY=sShY-20+hunch;
+    const hc=phase===0?`rgba(239,68,68,${0.14+0.07*Math.sin(t*2)})`:phase===1?`rgba(245,158,11,${0.13+0.05*Math.sin(t*2)})`:`rgba(16,185,129,${0.15+0.05*Math.sin(t)})`;
+    ctx.beginPath(); ctx.arc(stuX,hdY,22,0,Math.PI*2); ctx.fillStyle=hc; ctx.fill();
+    ctx.beginPath(); ctx.arc(stuX,hdY,15,0,Math.PI*2);
+    ctx.fillStyle='rgba(30,41,59,0.97)'; ctx.fill();
+    ctx.strokeStyle=phase>=2?'rgba(16,185,129,0.5)':phase===1?'rgba(245,158,11,0.4)':'rgba(99,102,241,0.4)';
+    ctx.lineWidth=1.5; ctx.stroke();
+    // Face
+    if(phase===0){
+      ctx.fillStyle='rgba(239,68,68,0.85)';
+      [stuX-5,stuX+5].forEach(ex=>{ctx.beginPath();ctx.arc(ex,hdY-3,1.8,0,Math.PI*2);ctx.fill();});
+      ctx.beginPath(); ctx.moveTo(stuX-4,hdY+6); ctx.bezierCurveTo(stuX-1,hdY+4,stuX+2,hdY+8,stuX+5,hdY+6);
+      ctx.strokeStyle='rgba(239,68,68,0.7)'; ctx.lineWidth=1.5; ctx.stroke();
+    } else if(phase===1){
+      ctx.fillStyle='rgba(245,158,11,0.9)';
+      [stuX-5,stuX+5].forEach(ex=>{ctx.beginPath();ctx.arc(ex,hdY-3,2.2,0,Math.PI*2);ctx.fill();});
+      ctx.beginPath(); ctx.moveTo(stuX-4,hdY+5); ctx.lineTo(stuX+4,hdY+5);
+      ctx.strokeStyle='rgba(245,158,11,0.7)'; ctx.lineWidth=1.5; ctx.stroke();
+    } else {
+      ctx.fillStyle='rgba(16,185,129,0.9)';
+      [stuX-5,stuX+5].forEach(ex=>{ctx.beginPath();ctx.arc(ex,hdY-3,1.8,0,Math.PI*2);ctx.fill();});
+      ctx.beginPath(); ctx.arc(stuX,hdY+3,5,0.1,Math.PI-0.1);
+      ctx.strokeStyle='rgba(16,185,129,0.8)'; ctx.lineWidth=1.5; ctx.stroke();
+    }
+    // Thought bubble trail
+    if(phase===0){
+      [[stuX+w*0.04,hdY-28],[stuX+w*0.08,hdY-44],[stuX+w*0.12,hdY-56]].forEach(([bx,by],i)=>{
+        const br=2.5+i*1.8;
+        ctx.beginPath(); ctx.arc(bx,by,br*(0.7+0.3*Math.sin(t*2+i)),0,Math.PI*2);
+        ctx.fillStyle=`rgba(99,102,241,${0.22+0.08*Math.sin(t*1.5+i)})`; ctx.fill();
+      });
+    }
+  }
+
+  function drawThoughtCloud(w,h,t){
+    if(phase>=2)return;
+    const cx=w*0.36,cy=h*0.26,cw=w*0.10,ch=h*0.08;
+    const a=phase===1?0.22:0.16+0.05*Math.sin(t*1.2);
+    ctx.beginPath();
+    for(let ang=0;ang<Math.PI*2;ang+=0.12){
+      const bump=0.82+0.18*Math.sin(ang*5+t*0.4);
+      const rx=(ang<Math.PI?cw*1.4:cw)*bump,ry=ch*bump;
+      ang<0.14?ctx.moveTo(cx+rx*Math.cos(ang),cy+ry*Math.sin(ang)):ctx.lineTo(cx+rx*Math.cos(ang),cy+ry*Math.sin(ang));
+    }
+    ctx.closePath();
+    ctx.fillStyle=`rgba(30,27,75,${a+0.15})`; ctx.fill();
+    ctx.strokeStyle=`rgba(99,102,241,${a})`; ctx.lineWidth=1; ctx.stroke();
+    ctx.fillStyle=`rgba(148,163,184,${a*3})`; ctx.font='700 9px Inter,sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('???',cx,cy);
+  }
+
+  function drawConfusion(w,h,t){
+    if(phase>=2)return;
+    const fade=phase===1?0.28:1;
+    QMARKS.forEach(q=>{
+      const x=q.x*w,y=(q.y-(t*q.speed*800%0.45))*h;
+      ctx.fillStyle=`rgba(239,68,68,${q.alpha*fade*Math.abs(Math.sin(t*1.5+q.phase))})`;
+      ctx.font=`700 ${q.size}px Inter,sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(q.char,x,y);
+    });
+  }
+
+  function drawConcepts(w,h,t){
+    const p=easeOut(Math.min(1,phaseT/1.4));
+    if(phase>=1){
+      EDGES.forEach(([a,b])=>{
+        const na=CONCEPTS[a],nb=CONCEPTS[b];
+        const ax=lerp(na.cx,na.tx,p)*w,ay=lerp(na.cy,na.ty,p)*h;
+        const bx=lerp(nb.cx,nb.tx,p)*w,by=lerp(nb.cy,nb.ty,p)*h;
+        const ea=Math.min(1,phaseT*0.9),weak=na.weak||nb.weak;
+        ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by);
+        if(weak&&phase===1){ctx.strokeStyle=`rgba(239,68,68,${ea*0.55})`;ctx.setLineDash([4,4]);}
+        else{ctx.strokeStyle=phase>=2?`rgba(16,185,129,${ea*0.65})`:`rgba(99,102,241,${ea*0.45})`;ctx.setLineDash([]);}
+        ctx.lineWidth=1.5; ctx.stroke(); ctx.setLineDash([]);
+      });
+    }
+    CONCEPTS.forEach((n,i)=>{
+      const chaos=(phase===0?1:1-p)*5;
+      const fx=lerp(n.cx,n.tx,p)*w+Math.sin(t*0.75+i*1.4)*chaos;
+      const fy=lerp(n.cy,n.ty,p)*h+Math.cos(t*0.65+i)*chaos;
+      const isWeak=n.weak&&phase>=1,isRes=n.weak&&phase>=2,r=13;
+      const col=isRes?'#10b981':isWeak?'#ef4444':n.color;
+      if(isWeak&&!isRes){
+        const gg=ctx.createRadialGradient(fx,fy,0,fx,fy,r*2.5);
+        gg.addColorStop(0,`rgba(239,68,68,${0.28+0.12*Math.sin(t*3+i)})`); gg.addColorStop(1,'transparent');
+        ctx.beginPath(); ctx.arc(fx,fy,r*2.5,0,Math.PI*2); ctx.fillStyle=gg; ctx.fill();
+      } else if(isRes){
+        const gg=ctx.createRadialGradient(fx,fy,0,fx,fy,r*2);
+        gg.addColorStop(0,'rgba(16,185,129,0.22)'); gg.addColorStop(1,'transparent');
+        ctx.beginPath(); ctx.arc(fx,fy,r*2,0,Math.PI*2); ctx.fillStyle=gg; ctx.fill();
+      }
+      ctx.beginPath(); ctx.arc(fx,fy,r,0,Math.PI*2);
+      ctx.fillStyle=col; ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1.2; ctx.stroke();
+      ctx.fillStyle='rgba(255,255,255,0.88)'; ctx.font='500 8px Inter,sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText(n.label,fx,fy+r+3);
+    });
+  }
+
+  function drawStatus(w,h){
+    const msgs=['😕  Student struggling — knowledge graph is broken & disconnected','🔴  GCN scanning — weak prerequisite gaps flagged for intervention','✅  Personalized path activated — gaps resolved, graph structured'];
+    const cols=['rgba(239,68,68,0.75)','rgba(245,158,11,0.85)','rgba(16,185,129,0.85)'];
+    ctx.fillStyle=cols[phase]; ctx.font='500 11px Inter,sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText(msgs[phase],w/2,h-8);
+  }
+
+  function drawScene(){
+    const w=W/Math.min(window.devicePixelRatio,2),h=H/Math.min(window.devicePixelRatio,2);
+    ctx.clearRect(0,0,w,h);
+    ctx.strokeStyle='rgba(99,102,241,0.035)'; ctx.lineWidth=1;
+    for(let gx=w*0.46;gx<w;gx+=30){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,h);ctx.stroke();}
+    for(let gy=0;gy<h;gy+=30){ctx.beginPath();ctx.moveTo(w*0.46,gy);ctx.lineTo(w,gy);ctx.stroke();}
+    ctx.beginPath(); ctx.moveTo(w*0.46,h*0.04); ctx.lineTo(w*0.46,h*0.91);
+    ctx.strokeStyle='rgba(99,102,241,0.1)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.fillStyle='rgba(100,116,139,0.42)'; ctx.font='500 9px Inter,sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText('STUDENT',w*0.23,6); ctx.fillText('KNOWLEDGE GRAPH',w*0.73,6);
+    drawStudent(w,h,animT); drawThoughtCloud(w,h,animT);
+    drawConfusion(w,h,animT); drawConcepts(w,h,animT); drawStatus(w,h);
+  }
+
+  function loop(){animT+=0.012;phaseT+=0.022;drawScene();requestAnimationFrame(loop);}
+  resize(); loop();
+  window.addEventListener('resize',resize);
+
+  document.querySelectorAll('.story-phase-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const np=parseInt(btn.dataset.phase);
+      if(np===phase)return;
+      phase=np; phaseT=0;
+      document.querySelectorAll('.story-phase-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Auto-advance on scroll into view
+  let ran=false;
+  new IntersectionObserver(entries=>{
+    if(entries[0].isIntersecting&&!ran){
+      ran=true;
+      const btns=document.querySelectorAll('.story-phase-btn');
+      setTimeout(()=>{phase=1;phaseT=0;btns.forEach(b=>b.classList.remove('active'));btns[1]?.classList.add('active');},2200);
+      setTimeout(()=>{phase=2;phaseT=0;btns.forEach(b=>b.classList.remove('active'));btns[2]?.classList.add('active');},5000);
+    }
+  },{threshold:0.45}).observe(canvas);
+})();
+
+
+// ── GCN NEURAL NETWORK CANVAS ────────────────────────────────────────
+(function(){
+  const canvas=document.getElementById('gcnCanvas');
+  const btn=document.getElementById('gcnInferBtn');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const LAYERS=[[3,4,3],[4,8,4],[4,8,4],[1,2,1]];
+  let inferring=false, inferT=0, dropMask=[];
+  function buildNodes(){
+    const nodes=[];
+    LAYERS.forEach((layer,li)=>{
+      layer.forEach((count,row)=>{
+        for(let i=0;i<count;i++){
+          const frac=(i+0.5)/count;
+          nodes.push({layer:li,row,idx:i,frac,dropped:false,signal:0});
+        }
+      });
+    });
+    return nodes;
+  }
+  const nodes=buildNodes();
+  function resize(){
+    const dpr=Math.min(window.devicePixelRatio,2);
+    const rect=canvas.parentElement.getBoundingClientRect();
+    canvas.width=rect.width*dpr; canvas.height=190*dpr;
+    canvas.style.width=rect.width+'px'; canvas.style.height='190px';
+    ctx.scale(dpr,dpr);
+  }
+  function draw(){
+    const W=canvas.width/Math.min(window.devicePixelRatio,2);
+    const H=canvas.height/Math.min(window.devicePixelRatio,2);
+    ctx.clearRect(0,0,W,H);
+    const layerX=(li)=>40+li*(W-80)/3;
+    const nodeY=(n)=>20+n.frac*(H-40);
+    // edges
+    nodes.forEach(n=>{
+      if(n.layer>=LAYERS.length-1)return;
+      const nextLayer=nodes.filter(m=>m.layer===n.layer+1);
+      nextLayer.forEach(m=>{
+        const sig=inferring?(n.signal*0.6+m.signal*0.4):0;
+        ctx.beginPath();ctx.moveTo(layerX(n.layer),nodeY(n));ctx.lineTo(layerX(m.layer),nodeY(m));
+        ctx.strokeStyle=`rgba(99,102,241,${0.06+sig*0.3})`;ctx.lineWidth=0.8;ctx.stroke();
+        if(inferring&&sig>0.4){
+          const p=(inferT*1.5)%1;
+          const px=layerX(n.layer)+(layerX(m.layer)-layerX(n.layer))*p;
+          const py=nodeY(n)+(nodeY(m)-nodeY(n))*p;
+          ctx.beginPath();ctx.arc(px,py,2.5,0,Math.PI*2);
+          ctx.fillStyle=`rgba(6,182,212,${sig})`;ctx.fill();
+        }
+      });
+    });
+    // nodes
+    nodes.forEach(n=>{
+      const x=layerX(n.layer), y=nodeY(n), r=5;
+      const glow=n.signal>0.5;
+      if(glow){ctx.beginPath();ctx.arc(x,y,r+4,0,Math.PI*2);ctx.fillStyle=`rgba(99,102,241,${n.signal*0.3})`;ctx.fill();}
+      ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fillStyle=n.dropped?'rgba(100,116,139,0.3)':(glow?`rgba(99,102,241,${0.7+n.signal*0.3})`:'rgba(99,102,241,0.55)');
+      ctx.fill();
+    });
+    // layer labels
+    ['Input','Layer 1','Layer 2','Output'].forEach((lbl,li)=>{
+      ctx.fillStyle='rgba(100,116,139,0.7)';ctx.font='500 8px Inter,sans-serif';ctx.textAlign='center';
+      ctx.fillText(lbl,layerX(li),H-4);
+    });
+  }
+  function runInference(){
+    if(inferring)return;
+    inferring=true; inferT=0;
+    // random dropout
+    nodes.forEach(n=>{n.dropped=n.layer>0&&n.layer<3&&Math.random()<0.35; n.signal=0;});
+    const iv=setInterval(()=>{
+      inferT+=0.025;
+      nodes.forEach(n=>{
+        if(n.dropped){n.signal=0;return;}
+        const prog=Math.max(0,inferT-n.layer*0.3);
+        n.signal=Math.min(1,prog*1.5)*( 0.5+0.5*Math.random() );
+      });
+      if(inferT>2.5){clearInterval(iv);inferring=false;nodes.forEach(n=>n.signal=0);}
+    },30);
+  }
+  resize();
+  (function loop(){draw();requestAnimationFrame(loop);})();
+  window.addEventListener('resize',resize);
+  if(btn)btn.addEventListener('click',runInference);
+})();
+
+// ── REVEAL-SCALE OBSERVER ────────────────────────────────────────────
+const scaleIO=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:0.12});
+document.querySelectorAll('.reveal-scale').forEach(el=>scaleIO.observe(el));
+
 </script>
 </body>
 </html>
