@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GraphEdu — AI-Powered Adaptive Learning</title>
+<meta name="description" content="GraphEdu is an AI-powered adaptive educational platform using Graph Neural Networks, Bayesian inference, and RAG pipelines to personalize learning at scale."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #020509;
+  --bg2: #060d1a;
+  --bg3: #0a1628;
+  --surface: rgba(255,255,255,0.03);
+  --surface2: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(99,102,241,0.3);
+  --indigo: #6366f1;
+  --indigo-light: #818cf8;
+  --cyan: #06b6d4;
+  --cyan-light: #67e8f9;
+  --emerald: #10b981;
+  --rose: #ef4444;
+  --amber: #f59e0b;
+  --violet: #8b5cf6;
+  --text: #f0f4ff;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --mono: 'JetBrains Mono', monospace;
+  --display: 'Space Grotesk', sans-serif;
+  --body: 'Inter', sans-serif;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --glow-indigo: 0 0 40px rgba(99,102,241,0.25);
+  --glow-cyan: 0 0 40px rgba(6,182,212,0.25);
+  --glow-rose: 0 0 30px rgba(239,68,68,0.35);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--body);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.7;
+}
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 6vw;
+  height: 64px;
+  background: rgba(2,5,9,0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.nav-logo { font-family: var(--display); font-weight: 700; font-size: 1.2rem;
+  background: linear-gradient(135deg, var(--indigo-light), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a { font-size: 0.85rem; font-weight: 500; color: var(--text2); text-decoration: none; transition: color 0.2s; letter-spacing: 0.02em; }
+.nav-links a:hover { color: var(--text); }
+/* UTILS */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 6vw; }
+.section { padding: 120px 0; }
+.section-label { font-family: var(--mono); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--indigo-light); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+.section-label::before { content: ''; display: block; width: 24px; height: 1px; background: var(--indigo-light); }
+h2.section-title { font-family: var(--display); font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.2rem; }
+.grad-text { background: linear-gradient(135deg, var(--indigo-light) 0%, var(--cyan) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.grad-text-warm { background: linear-gradient(135deg, var(--amber) 0%, var(--rose) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.lead { font-size: 1.1rem; color: var(--text2); max-width: 600px; line-height: 1.8; }
+.glass { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.glass2 { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius); }
+.pill { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; }
+.pill-indigo { background: rgba(99,102,241,0.15); color: var(--indigo-light); border: 1px solid rgba(99,102,241,0.3); }
+.pill-cyan { background: rgba(6,182,212,0.12); color: var(--cyan-light); border: 1px solid rgba(6,182,212,0.25); }
+.pill-rose { background: rgba(239,68,68,0.12); color: #fca5a5; border: 1px solid rgba(239,68,68,0.25); }
+.pill-emerald { background: rgba(16,185,129,0.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.25); }
+.pill-amber { background: rgba(245,158,11,0.12); color: #fde68a; border: 1px solid rgba(245,158,11,0.25); }
+/* Scroll reveal */
+.reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s cubic-bezier(.16,1,.3,1), transform 0.7s cubic-bezier(.16,1,.3,1); }
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+/* HERO */
+#hero { position: relative; min-height: 100vh; display: flex; align-items: center; overflow: hidden; }
+#starfield { position: absolute; inset: 0; z-index: 0; }
+.hero-inner { position: relative; z-index: 2; padding-top: 80px; width: 100%; }
+.hero-eyebrow { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.18em; color: var(--cyan); text-transform: uppercase; margin-bottom: 1.5rem; opacity: 0; animation: fadeUp 0.6s 0.2s forwards; }
+.hero-title { font-family: var(--display); font-size: clamp(3.5rem, 8vw, 7rem); font-weight: 700; line-height: 1.04; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
+.hero-title .word { display: inline-block; opacity: 0; transform: translateY(30px); }
+.hero-title .word.line-break { display: block; height: 0; }
+.hero-sub { font-size: clamp(1rem, 2vw, 1.25rem); color: var(--text2); max-width: 580px; margin-bottom: 2.5rem; line-height: 1.75; opacity: 0; animation: fadeUp 0.6s 1s forwards; }
+.hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; opacity: 0; animation: fadeUp 0.6s 1.2s forwards; }
+.btn-primary { padding: 0.9rem 2rem; border-radius: 999px; font-weight: 600; font-size: 0.95rem; background: var(--indigo); color: #fff; text-decoration: none; transition: all 0.25s; box-shadow: 0 0 0 0 rgba(99,102,241,0.4); border: none; cursor: pointer; }
+.btn-primary:hover { background: var(--indigo-light); box-shadow: 0 0 0 8px rgba(99,102,241,0.15), 0 0 30px rgba(99,102,241,0.4); transform: translateY(-1px); }
+.btn-ghost { padding: 0.9rem 2rem; border-radius: 999px; font-weight: 600; font-size: 0.95rem; background: transparent; color: var(--text2); text-decoration: none; transition: all 0.25s; border: 1px solid var(--border); cursor: pointer; }
+.btn-ghost:hover { color: var(--text); border-color: var(--border2); background: var(--surface2); }
+.hero-stats { display: flex; gap: 3rem; margin-top: 5rem; opacity: 0; animation: fadeUp 0.6s 1.4s forwards; flex-wrap: wrap; }
+.hero-stat { }
+.hero-stat-num { font-family: var(--display); font-size: 2.4rem; font-weight: 700; background: linear-gradient(135deg, var(--indigo-light), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
+.hero-stat-label { font-size: 0.8rem; color: var(--text3); margin-top: 0.3rem; font-weight: 500; letter-spacing: 0.03em; }
+.hero-scroll { position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; opacity: 0; animation: fadeUp 0.6s 1.8s forwards; }
+.hero-scroll span { font-size: 0.7rem; letter-spacing: 0.15em; color: var(--text3); text-transform: uppercase; font-family: var(--mono); }
+.scroll-line { width: 1px; height: 48px; background: linear-gradient(to bottom, var(--indigo), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+@keyframes fadeUp { to { opacity: 1; transform: none; } }
+@keyframes scrollPulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+/* GRAPH SECTION */
+#graph-section { background: var(--bg2); border-top: 1px solid var(--border); }
+.graph-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+@media(max-width:900px) { .graph-grid { grid-template-columns: 1fr; } }
+.graph-canvas-wrap { position: relative; }
+#graphCanvas { width: 100%; height: 480px; border-radius: var(--radius); border: 1px solid var(--border); background: rgba(0,0,0,0.4); cursor: grab; display: block; }
+#graphCanvas:active { cursor: grabbing; }
+.graph-controls { display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap; }
+.graph-btn { padding: 0.5rem 1.1rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border); background: var(--surface); color: var(--text2); font-family: var(--mono); }
+.graph-btn:hover { border-color: var(--border2); color: var(--text); background: var(--surface2); }
+.graph-btn.active { background: rgba(99,102,241,0.2); border-color: var(--indigo); color: var(--indigo-light); }
+.graph-btn.active-rose { background: rgba(239,68,68,0.15); border-color: var(--rose); color: #fca5a5; }
+.graph-legend { display: flex; gap: 1.2rem; margin-top: 0.85rem; flex-wrap: wrap; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; color: var(--text3); font-family: var(--mono); }
+.graph-sidebar { }
+.graph-info-card { padding: 1.5rem; border-radius: var(--radius-sm); margin-top: 1.5rem; display: none; }
+.graph-info-card.visible { display: block; }
+.graph-info-card h4 { font-family: var(--display); font-weight: 600; margin-bottom: 0.5rem; font-size: 1rem; }
+.graph-info-card p { font-size: 0.875rem; color: var(--text2); line-height: 1.7; }
+
+/* SECTION DIVIDERS */
+.section-divider { width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); }
+.pill-amber { background: rgba(245,158,11,0.12); color: #fde68a; border: 1px solid rgba(245,158,11,0.25); }
+.pill-violet { background: rgba(139,92,246,0.12); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.25); }
+@media(max-width:900px){.two-col,.arch-cols,.decisions-grid{grid-template-columns:1fr!important;} nav .nav-links{display:none;} .hero-title{font-size:clamp(2.6rem,9vw,4rem);} .hero-stats{gap:1.5rem;} }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">GraphEdu</div>
+  <ul class="nav-links">
+    <li><a href="#graph-section">Knowledge Graph</a></li>
+    <li><a href="#gcn-section">GCN + BNN</a></li>
+    <li><a href="#rag-section">RAG Pipeline</a></li>
+    <li><a href="#btl-section">Adaptive Engine</a></li>
+    <li><a href="#arch-section">Architecture</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="starfield"></canvas>
+  <div class="container hero-inner">
+    <p class="hero-eyebrow">AI-Powered Adaptive Education</p>
+    <h1 class="hero-title" id="heroTitle">
+      <span class="word">Education</span>
+      <span class="word">&nbsp;</span>
+      <span class="word">that</span>
+      <span class="word">&nbsp;</span>
+      <span class="word">thinks</span>
+      <span class="word line-break"></span>
+      <span class="word">with</span>
+      <span class="word">&nbsp;</span>
+      <span class="word grad-text">you.</span>
+    </h1>
+    <p class="hero-sub">GraphEdu replaces one-size-fits-all syllabi with a living knowledge graph, a GCN that predicts failure before it happens, and an AI that generates your personal remediation plan in real time.</p>
+    <div class="hero-ctas">
+      <a href="#graph-section" class="btn-primary">Explore the System</a>
+      <a href="#gcn-section" class="btn-ghost">See the Math →</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">3</div><div class="hero-stat-label">AI / ML Models</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">4</div><div class="hero-stat-label">Bloom's Levels</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">20×</div><div class="hero-stat-label">MC Dropout Passes</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">384‑d</div><div class="hero-stat-label">Embedding Space</div></div>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- KNOWLEDGE GRAPH SECTION -->
+<section id="graph-section" class="section">
+  <div class="container">
+    <div class="graph-grid">
+      <div class="graph-sidebar reveal">
+        <p class="section-label">The Foundation</p>
+        <h2 class="section-title">The curriculum is a <span class="grad-text">living graph</span></h2>
+        <p class="lead">Concepts don't exist in isolation. <em>Arrays</em> must precede <em>Linked Lists</em>, which must precede <em>Trees</em>. GraphEdu models this as a directed acyclic graph — stored in Neo4j, rendered with D3 force physics, and traversed by a Graph Neural Network.</p>
+        <div style="margin-top:2rem; display:flex; flex-direction:column; gap:1rem;">
+          <div class="glass" style="padding:1.1rem 1.4rem; border-radius:var(--radius-sm); display:flex; gap:1rem; align-items:center;">
+            <div style="font-size:1.5rem;">🗄️</div>
+            <div>
+              <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.2rem;">Neo4j Graph Database</div>
+              <div style="font-size:0.8rem; color:var(--text3);">:Topic nodes + :PRECEDES relationships stored as labelled property graph</div>
+            </div>
+          </div>
+          <div class="glass" style="padding:1.1rem 1.4rem; border-radius:var(--radius-sm); display:flex; gap:1rem; align-items:center;">
+            <div style="font-size:1.5rem;">⚛️</div>
+            <div>
+              <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.2rem;">D3 Force Simulation</div>
+              <div style="font-size:0.8rem; color:var(--text3);">Physics engine: charge repulsion + spring links + alpha decay to stable layout</div>
+            </div>
+          </div>
+          <div class="glass" style="padding:1.1rem 1.4rem; border-radius:var(--radius-sm); display:flex; gap:1rem; align-items:center;">
+            <div style="font-size:1.5rem;">🔴</div>
+            <div>
+              <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.2rem;">Weak Node Highlighting</div>
+              <div style="font-size:0.8rem; color:var(--text3);">After quiz, GCN-flagged weak prerequisites glow red. Click to trigger RAG tutorial</div>
+            </div>
+          </div>
+        </div>
+        <div id="graphInfoCard" class="graph-info-card glass2" style="margin-top:1.5rem; display:none;">
+          <p class="pill pill-indigo" id="graphInfoType" style="margin-bottom:0.75rem; font-size:0.7rem;"></p>
+          <h4 id="graphInfoTitle" style="font-family:var(--display); font-weight:600; margin-bottom:0.5rem;"></h4>
+          <p id="graphInfoDesc" style="font-size:0.85rem; color:var(--text2); line-height:1.7;"></p>
+        </div>
+      </div>
+      <div class="graph-canvas-wrap reveal reveal-delay-2">
+        <canvas id="graphCanvas"></canvas>
+        <div class="graph-controls">
+          <button class="graph-btn active" id="btnFocused">Focused View</button>
+          <button class="graph-btn" id="btnGalaxy">Galaxy View</button>
+          <button class="graph-btn" id="btnWeak">⚠ Weak Mode</button>
+          <button class="graph-btn" id="btnReset">Reset</button>
+        </div>
+        <div class="graph-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#6366f1;"></div>Module</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#06b6d4;"></div>Prerequisite</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ef4444; box-shadow: 0 0 6px #ef4444;"></div>Weak (GCN flagged)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GCN SECTION -->
+<div class="section-divider"></div>
+<section id="gcn-section" class="section" style="background:var(--bg);">
+<div class="container">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start;" class="two-col">
+    <div class="reveal">
+      <p class="section-label">Model 1 of 3</p>
+      <h2 class="section-title">Graph Convolutional<br/><span class="grad-text">Network + Bayesian BNN</span></h2>
+      <p class="lead">The GCN doesn't just look at a student's score on Trees — it asks: <em>what were their scores on Linked Lists and Pointers first?</em> Prerequisite mastery flows through the graph.</p>
+      <div style="margin-top:2rem; padding:1.5rem; border-radius:var(--radius-sm); background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.2);">
+        <div style="font-family:var(--mono); font-size:0.8rem; color:var(--text3); margin-bottom:0.75rem;">// Core GCN Layer Operation (Kipf &amp; Welling, 2016)</div>
+        <div style="font-family:var(--mono); font-size:1.1rem; color:var(--cyan-light); letter-spacing:0.02em; line-height:2;">H<sup>(l+1)</sup> = σ( D̃<sup>−½</sup> Ã D̃<sup>−½</sup> H<sup>(l)</sup> W<sup>(l)</sup> )</div>
+        <div style="margin-top:1rem; display:flex; flex-direction:column; gap:0.4rem;">
+          <div style="font-size:0.8rem; color:var(--text2);"><span style="color:var(--indigo-light); font-family:var(--mono);">Ã</span> = A + I &nbsp;— adjacency matrix with self-loops</div>
+          <div style="font-size:0.8rem; color:var(--text2);"><span style="color:var(--indigo-light); font-family:var(--mono);">D̃</span> = degree matrix of Ã (normalisation)</div>
+          <div style="font-size:0.8rem; color:var(--text2);"><span style="color:var(--indigo-light); font-family:var(--mono);">H<sup>(l)</sup></span> = node feature matrix at layer l</div>
+          <div style="font-size:0.8rem; color:var(--text2);"><span style="color:var(--indigo-light); font-family:var(--mono);">W<sup>(l)</sup></span> = learnable weight matrix</div>
+        </div>
+      </div>
+      <div style="margin-top:1.5rem; padding:1.2rem 1.5rem; border-radius:var(--radius-sm); background:rgba(16,185,129,0.05); border:1px solid rgba(16,185,129,0.2);">
+        <div style="font-size:0.8rem; color:#6ee7b7; font-family:var(--mono); margin-bottom:0.5rem;">// Project Architecture: GraphEDU_GCN</div>
+        <div style="font-size:0.85rem; color:var(--text2); line-height:1.8;">
+          GCNConv(<span style="color:var(--cyan);">features→16</span>) → ReLU → Dropout(0.5)<br/>
+          GCNConv(<span style="color:var(--cyan);">16→16</span>) → ReLU → Dropout(0.5)<br/>
+          Linear(<span style="color:var(--cyan);">16→1</span>) → Sigmoid → <span style="color:var(--emerald);">mastery ∈ [0,1]</span>
+        </div>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-2">
+      <div class="glass" style="padding:1.8rem; border-radius:var(--radius);">
+        <div style="font-family:var(--display); font-weight:600; font-size:1rem; margin-bottom:0.4rem;">Monte Carlo Dropout Simulator</div>
+        <div style="font-size:0.82rem; color:var(--text3); margin-bottom:1.5rem; line-height:1.6;">Drag the slider to change number of stochastic forward passes (T). Watch how uncertainty (variance) drops as T increases.</div>
+        <div style="margin-bottom:1.2rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span style="font-size:0.8rem; color:var(--text3); font-family:var(--mono);">Forward Passes (T)</span>
+            <span id="tVal" style="font-family:var(--mono); color:var(--cyan); font-weight:700; font-size:1rem;">5</span>
+          </div>
+          <input type="range" id="mcSlider" min="1" max="50" value="5" style="width:100%; accent-color:var(--indigo); cursor:pointer; height:6px;"/>
+        </div>
+        <div id="mcBars" style="display:flex; gap:6px; align-items:flex-end; height:140px; margin-bottom:1rem; padding:0 4px;"></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
+          <div style="padding:1rem; background:rgba(99,102,241,0.1); border-radius:var(--radius-sm); text-align:center; border:1px solid rgba(99,102,241,0.2);">
+            <div id="mcMean" style="font-family:var(--mono); font-size:1.4rem; font-weight:700; color:var(--indigo-light);">0.72</div>
+            <div style="font-size:0.72rem; color:var(--text3); margin-top:0.2rem;">μ (Pred. Mean)</div>
+          </div>
+          <div style="padding:1rem; background:rgba(239,68,68,0.08); border-radius:var(--radius-sm); text-align:center; border:1px solid rgba(239,68,68,0.2);">
+            <div id="mcVar" style="font-family:var(--mono); font-size:1.4rem; font-weight:700; color:#fca5a5;">0.031</div>
+            <div style="font-size:0.72rem; color:var(--text3); margin-top:0.2rem;">σ² (Uncertainty)</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:1.2rem; padding:1.2rem 1.5rem; border-radius:var(--radius-sm); background:rgba(245,158,11,0.07); border:1px solid rgba(245,158,11,0.2);">
+        <div style="font-size:0.78rem; color:var(--text3); font-family:var(--mono); margin-bottom:0.4rem;">// Intervention Flagging Logic</div>
+        <div style="font-family:var(--mono); font-size:0.85rem; line-height:1.8; color:#fde68a;">flagged = prob_failure <span style="color:var(--rose);">&gt; 0.6</span> <span style="color:var(--text2);">and</span> uncertainty <span style="color:var(--emerald);">&lt; 0.2</span></div>
+        <div style="font-size:0.78rem; color:var(--text3); margin-top:0.5rem; line-height:1.6;">Only flag if model is <strong style="color:#6ee7b7;">confident</strong> AND predicts failure — avoids false alarms when the model is itself unsure.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- RAG SECTION -->
+<div class="section-divider"></div>
+<section id="rag-section" class="section" style="background:var(--bg2);">
+<div class="container">
+  <div style="text-align:center; max-width:700px; margin:0 auto 4rem;" class="reveal">
+    <p class="section-label" style="justify-content:center;">Model 2 of 3</p>
+    <h2 class="section-title">RAG Pipeline — <span class="grad-text">No Hallucinations</span></h2>
+    <p class="lead" style="margin:0 auto;">When a student clicks a weak node on the knowledge graph, a local RAG pipeline retrieves relevant textbook passages and generates a personalized 5-sentence remedial plan — grounded in facts, zero API cost.</p>
+  </div>
+  <div class="reveal" style="display:flex; flex-direction:column; gap:0; max-width:900px; margin:0 auto 3rem;">
+    <div id="ragStep0" class="rag-step" style="display:flex; gap:1.5rem; align-items:center; padding:1.5rem; border-radius:12px 12px 0 0; border:1px solid var(--border); background:var(--surface); transition:all 0.4s;">
+      <div class="rag-icon" style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3);">🎯</div>
+      <div style="flex:1;"><div style="font-weight:600; font-size:0.95rem; margin-bottom:0.2rem;">Student clicks weak node</div><div style="font-size:0.8rem; color:var(--text3);">Topic: <span class="rag-topic" style="color:var(--cyan); font-family:var(--mono);">"Binary Search Tree"</span> → POST /generate-remedial-content</div></div>
+      <div class="rag-step-num" style="font-family:var(--mono); font-size:0.75rem; color:var(--text3); flex-shrink:0;">01</div>
+    </div>
+    <div id="ragStep1" class="rag-step" style="display:flex; gap:1.5rem; align-items:center; padding:1.5rem; border:1px solid var(--border); border-top:none; background:var(--surface); transition:all 0.4s;">
+      <div class="rag-icon" style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0; background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.2);">📐</div>
+      <div style="flex:1;"><div style="font-weight:600; font-size:0.95rem; margin-bottom:0.2rem;">Sentence Embedding</div><div style="font-size:0.8rem; color:var(--text3);"><span style="color:var(--indigo-light); font-family:var(--mono);">all-MiniLM-L6-v2</span> → 384-dimensional dense vector (22M param HuggingFace model)</div></div>
+      <div class="rag-step-num" style="font-family:var(--mono); font-size:0.75rem; color:var(--text3); flex-shrink:0;">02</div>
+    </div>
+    <div id="ragStep2" class="rag-step" style="display:flex; gap:1.5rem; align-items:center; padding:1.5rem; border:1px solid var(--border); border-top:none; background:var(--surface); transition:all 0.4s;">
+      <div class="rag-icon" style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0; background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.2);">🔍</div>
+      <div style="flex:1;"><div style="font-weight:600; font-size:0.95rem; margin-bottom:0.2rem;">FAISS ANN Search</div><div style="font-size:0.8rem; color:var(--text3);">L2 distance in 384-d embedding space → top-k=2 most semantically similar textbook chunks retrieved</div></div>
+      <div class="rag-step-num" style="font-family:var(--mono); font-size:0.75rem; color:var(--text3); flex-shrink:0;">03</div>
+    </div>
+    <div id="ragStep3" class="rag-step" style="display:flex; gap:1.5rem; align-items:center; padding:1.5rem; border:1px solid var(--border); border-top:none; background:var(--surface); transition:all 0.4s;">
+      <div class="rag-icon" style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2);">📝</div>
+      <div style="flex:1;"><div style="font-weight:600; font-size:0.95rem; margin-bottom:0.2rem;">LangChain Prompt Assembly</div><div style="font-size:0.8rem; color:var(--text3);">LCEL chain: retriever | format_docs | PromptTemplate | OllamaLLM | StrOutputParser</div></div>
+      <div class="rag-step-num" style="font-family:var(--mono); font-size:0.75rem; color:var(--text3); flex-shrink:0;">04</div>
+    </div>
+    <div id="ragStep4" class="rag-step" style="display:flex; gap:1.5rem; align-items:center; padding:1.5rem; border-radius:0 0 12px 12px; border:1px solid var(--border); border-top:none; background:var(--surface); transition:all 0.4s;">
+      <div class="rag-icon" style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.2);">🦙</div>
+      <div style="flex:1;"><div style="font-weight:600; font-size:0.95rem; margin-bottom:0.2rem;">LLaMA 3 Generation (temp=0.3)</div><div style="font-size:0.8rem; color:var(--text3);">Local Ollama — no API cost, no data leak, strictly grounded output. Max 3 concept + 2 importance sentences.</div></div>
+      <div class="rag-step-num" style="font-family:var(--mono); font-size:0.75rem; color:var(--text3); flex-shrink:0;">05</div>
+    </div>
+  </div>
+  <div class="reveal reveal-delay-1" style="max-width:900px; margin:0 auto; padding:1.8rem; border-radius:var(--radius); background:var(--surface); border:1px solid var(--border);">
+    <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
+      <span style="font-size:0.8rem; color:var(--text3); font-family:var(--mono);">Try it → topic:</span>
+      <input id="ragInput" type="text" placeholder="e.g. Binary Search Tree" value="Binary Search Tree" style="flex:1; min-width:180px; padding:0.55rem 1rem; border-radius:999px; border:1px solid var(--border); background:var(--bg3); color:var(--text); font-size:0.85rem; font-family:var(--body); outline:none;"/>
+      <button id="ragRunBtn" class="btn-primary" style="padding:0.55rem 1.4rem; font-size:0.85rem;">Run Pipeline ▶</button>
+    </div>
+    <div id="ragOutput" style="min-height:72px; font-size:0.88rem; line-height:1.8; color:var(--text2); padding:1rem; border-radius:var(--radius-sm); background:rgba(0,0,0,0.3); border:1px solid var(--border); font-family:var(--body);">
+      <span style="color:var(--text3); font-family:var(--mono); font-size:0.78rem;">// Output will appear here after pipeline runs</span>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- BTL SECTION -->
+<div class="section-divider"></div>
+<section id="btl-section" class="section" style="background:var(--bg);">
+<div class="container">
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:start;" class="two-col">
+    <div class="reveal">
+      <p class="section-label">Model 3 of 3</p>
+      <h2 class="section-title">Adaptive Testing<br/><span class="grad-text-warm">via Bloom's Taxonomy</span></h2>
+      <p class="lead">A question difficulty state machine based on Bloom's Taxonomy Levels (BTL). Two consecutive correct answers → level up. One wrong answer → immediate drop. The quiz tracks where you truly are.</p>
+      <div style="margin-top:2rem; padding:1.4rem; border-radius:var(--radius-sm); background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.2);">
+        <div style="font-family:var(--mono); font-size:0.75rem; color:var(--text3); margin-bottom:0.75rem;">// Adaptive BTL State Machine</div>
+        <div style="font-family:var(--mono); font-size:0.82rem; line-height:2; color:var(--text);">
+          <span style="color:var(--text3);">if</span> (correct &amp;&amp; streak <span style="color:var(--emerald);">≥ 2</span>) BTL = min(<span style="color:var(--cyan);">4</span>, BTL+1) <span style="color:var(--emerald);">// Level UP</span><br/>
+          <span style="color:var(--text3);">if</span> (!correct) BTL = max(<span style="color:var(--cyan);">1</span>, BTL-1) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--rose);">// Level DOWN</span>
+        </div>
+      </div>
+      <div style="margin-top:1.2rem; padding:1.4rem; border-radius:var(--radius-sm); background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.15);">
+        <div style="font-family:var(--mono); font-size:0.75rem; color:var(--text3); margin-bottom:0.75rem;">// Incremental Running Average (O(1) space)</div>
+        <div style="font-family:var(--mono); font-size:0.9rem; color:var(--indigo-light);">newAvg = (oldAvg × oldCount + newScore) / newCount</div>
+        <div style="font-size:0.8rem; color:var(--text3); margin-top:0.5rem;">No historical scores stored — mathematically exact cumulative average in constant memory.</div>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-2">
+      <div class="glass" style="padding:1.8rem; border-radius:var(--radius);">
+        <div style="font-weight:600; font-family:var(--display); margin-bottom:0.3rem;">Interactive BTL Simulator</div>
+        <div style="font-size:0.78rem; color:var(--text3); margin-bottom:1.5rem;">Answer questions to watch the difficulty adapt in real time.</div>
+        <!-- Bloom Pyramid -->
+        <div id="bloomPyramid" style="margin-bottom:1.5rem; display:flex; flex-direction:column; gap:4px;">
+          <div class="bloom-level" data-level="4" style="padding:0.7rem; border-radius:8px; text-align:center; transition:all 0.4s; cursor:default; font-size:0.82rem; font-weight:600; opacity:0.35; background:rgba(239,68,68,0.1); color:#fca5a5; border:1px solid rgba(239,68,68,0.2);">Level 4 — Analyze (Evaluate / Compare)</div>
+          <div class="bloom-level" data-level="3" style="padding:0.7rem; border-radius:8px; text-align:center; transition:all 0.4s; cursor:default; font-size:0.82rem; font-weight:600; opacity:0.35; background:rgba(245,158,11,0.08); color:#fde68a; border:1px solid rgba(245,158,11,0.2);">Level 3 — Apply (Solve / Implement)</div>
+          <div class="bloom-level" data-level="2" style="padding:0.7rem; border-radius:8px; text-align:center; transition:all 0.4s; cursor:default; font-size:0.82rem; font-weight:600; opacity:0.35; background:rgba(16,185,129,0.08); color:#6ee7b7; border:1px solid rgba(16,185,129,0.2);">Level 2 — Understand (Explain / Describe)</div>
+          <div class="bloom-level active" data-level="1" style="padding:0.7rem; border-radius:8px; text-align:center; transition:all 0.4s; cursor:default; font-size:0.82rem; font-weight:600; opacity:1; background:rgba(99,102,241,0.2); color:var(--indigo-light); border:1px solid rgba(99,102,241,0.4);">Level 1 — Remember (Define / Recall) ← current</div>
+        </div>
+        <div id="btlQuestion" style="padding:1rem; border-radius:var(--radius-sm); background:var(--bg3); border:1px solid var(--border); font-size:0.88rem; line-height:1.7; color:var(--text2); margin-bottom:1.2rem; min-height:60px;"></div>
+        <div style="display:flex; gap:0.75rem; margin-bottom:1.2rem;">
+          <button id="btlCorrect" class="btn-primary" style="flex:1; padding:0.65rem; font-size:0.85rem; background:var(--emerald);">✓ Correct</button>
+          <button id="btlWrong" class="btn-ghost" style="flex:1; padding:0.65rem; font-size:0.85rem; border-color:rgba(239,68,68,0.3); color:#fca5a5;">✗ Wrong</button>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; font-size:0.78rem; text-align:center;">
+          <div style="padding:0.65rem; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border);">
+            <div id="btlLevel" style="font-family:var(--mono); font-size:1.2rem; font-weight:700; color:var(--indigo-light);">1</div>
+            <div style="color:var(--text3);">BTL Level</div>
+          </div>
+          <div style="padding:0.65rem; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border);">
+            <div id="btlStreak" style="font-family:var(--mono); font-size:1.2rem; font-weight:700; color:var(--emerald);">0</div>
+            <div style="color:var(--text3);">Streak</div>
+          </div>
+          <div style="padding:0.65rem; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border);">
+            <div id="btlAvg" style="font-family:var(--mono); font-size:1.2rem; font-weight:700; color:var(--cyan);">—</div>
+            <div style="color:var(--text3);">Avg Score</div>
+          </div>
+        </div>
+        <div id="btlMsg" style="margin-top:1rem; padding:0.7rem 1rem; border-radius:var(--radius-sm); font-size:0.82rem; text-align:center; display:none; font-weight:600;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ARCHITECTURE SECTION -->
+<div class="section-divider"></div>
+<section id="arch-section" class="section" style="background:var(--bg2);">
+<div class="container">
+  <div class="reveal" style="text-align:center;max-width:640px;margin:0 auto 4rem;">
+    <p class="section-label" style="justify-content:center;">The Stack</p>
+    <h2 class="section-title">Three-Tier <span class="grad-text">Architecture</span></h2>
+    <p class="lead" style="margin:0 auto;">Every service in GraphEdu has one job. Three tiers — React frontend, Node.js orchestrator, Python ML engine — communicate via clean REST boundaries.</p>
+  </div>
+  <div class="reveal" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:3rem;" class="arch-cols">
+    <div class="glass" style="padding:1.8rem;border-radius:var(--radius);border-color:rgba(99,102,241,0.25);position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--indigo),var(--indigo-light));"></div>
+      <div class="pill pill-indigo" style="margin-bottom:1rem;">Port 5173</div>
+      <h3 style="font-family:var(--display);font-weight:700;font-size:1.1rem;margin-bottom:0.75rem;">React Frontend</h3>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;">
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">React 18 + Vite</div>
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">Tailwind CSS v3</div>
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">react-force-graph-2d</div>
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">Firebase Auth SDK</div>
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">Axios + React Router v6</div>
+      </div>
+      <div style="margin-top:1.2rem;padding:0.75rem;border-radius:8px;background:rgba(99,102,241,0.08);font-size:0.75rem;color:var(--text2);line-height:1.6;">Quiz Engine · D3 Knowledge Graph · Dashboards · Analytics</div>
+    </div>
+    <div class="glass" style="padding:1.8rem;border-radius:var(--radius);border-color:rgba(16,185,129,0.25);position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--emerald),var(--cyan));"></div>
+      <div class="pill pill-emerald" style="margin-bottom:1rem;">Port 5001</div>
+      <h3 style="font-family:var(--display);font-weight:700;font-size:1.1rem;margin-bottom:0.75rem;">Node.js Backend</h3>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;">
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">Express.js + ES Modules</div>
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">MongoDB + Mongoose</div>
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">Neo4j (Cypher queries)</div>
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">Gemini 2.5 Flash API</div>
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">Ollama REST (LLaMA 3)</div>
+      </div>
+      <div style="margin-top:1.2rem;padding:0.75rem;border-radius:8px;background:rgba(16,185,129,0.07);font-size:0.75rem;color:var(--text2);line-height:1.6;">Auth · Graph Seeding · Question Banks · Submissions · Reports</div>
+    </div>
+    <div class="glass" style="padding:1.8rem;border-radius:var(--radius);border-color:rgba(139,92,246,0.25);position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--violet),var(--rose));"></div>
+      <div class="pill" style="margin-bottom:1rem;background:rgba(139,92,246,0.15);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3);">Port 8001</div>
+      <h3 style="font-family:var(--display);font-weight:700;font-size:1.1rem;margin-bottom:0.75rem;">Python ML Backend</h3>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;">
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">FastAPI + Uvicorn</div>
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">PyTorch Geometric (GCNConv)</div>
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">FAISS + all-MiniLM-L6-v2</div>
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">LangChain LCEL</div>
+        <div style="font-size:0.78rem;color:var(--text3);font-family:var(--mono);">Ollama (LLaMA 3 local)</div>
+      </div>
+      <div style="margin-top:1.2rem;padding:0.75rem;border-radius:8px;background:rgba(139,92,246,0.07);font-size:0.75rem;color:var(--text2);line-height:1.6;">/predict · /generate-remedial-content · /health</div>
+    </div>
+  </div>
+  <div class="reveal" style="padding:1.5rem 2rem;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);max-width:780px;margin:0 auto;">
+    <div style="font-size:0.75rem;color:var(--text3);font-family:var(--mono);margin-bottom:0.6rem;">// start_ecosystem.js — One-command orchestration</div>
+    <div style="font-size:0.85rem;color:var(--text2);line-height:1.9;">TCP socket probe each port → if already running: mark <span style="color:var(--emerald);">🟢 External</span>, skip → else <span style="color:var(--cyan);">child_process.spawn()</span> → stream all stdout/stderr → on Ctrl+C, kill only spawned (leave externals untouched)</div>
+  </div>
+</div>
+</section>
+
+<!-- DESIGN DECISIONS SECTION -->
+<div class="section-divider"></div>
+<section id="decisions-section" class="section" style="background:var(--bg);">
+<div class="container">
+  <div class="reveal" style="text-align:center;max-width:640px;margin:0 auto 3.5rem;">
+    <p class="section-label" style="justify-content:center;">Why It Works</p>
+    <h2 class="section-title">The Reasoning <span class="grad-text">Behind the Design</span></h2>
+  </div>
+  <div class="reveal" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem;" class="decisions-grid">
+    <div class="decision-card glass" style="padding:1.8rem;border-radius:var(--radius);cursor:pointer;transition:all 0.3s;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(99,102,241,0.15);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🧠</div>
+        <div style="font-weight:600;font-size:0.95rem;">GCN over simple regression</div>
+      </div>
+      <p style="font-size:0.83rem;color:var(--text2);line-height:1.75;">The curriculum is a graph. Topic mastery depends on prerequisite mastery. A GCN captures this dependency via neighbourhood aggregation — a flat NN would ignore the prerequisite chain entirely.</p>
+    </div>
+    <div class="decision-card glass" style="padding:1.8rem;border-radius:var(--radius);cursor:pointer;transition:all 0.3s;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(239,68,68,0.12);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🎲</div>
+        <div style="font-weight:600;font-size:0.95rem;">MC Dropout over deterministic NN</div>
+      </div>
+      <p style="font-size:0.83rem;color:var(--text2);line-height:1.75;">Uncertainty quantification is critical. The system avoids flagging students when its own model is unsure — preventing false intervention alarms without expensive Bayesian retraining.</p>
+    </div>
+    <div class="decision-card glass" style="padding:1.8rem;border-radius:var(--radius);cursor:pointer;transition:all 0.3s;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(6,182,212,0.1);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">📚</div>
+        <div style="font-weight:600;font-size:0.95rem;">FAISS + local LLM for RAG</div>
+      </div>
+      <p style="font-size:0.83rem;color:var(--text2);line-height:1.75;">Zero API cost for remedial plans. No student data leaves the machine. Textbook-grounded answers prevent hallucination. Privacy-first architecture by default.</p>
+    </div>
+    <div class="decision-card glass" style="padding:1.8rem;border-radius:var(--radius);cursor:pointer;transition:all 0.3s;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">⚡</div>
+        <div style="font-weight:600;font-size:0.95rem;">Gemini for batch generation</div>
+      </div>
+      <p style="font-size:0.83rem;color:var(--text2);line-height:1.75;">Local LLaMA 3 is too slow for 40-question batch generation or full curriculum JSON. Gemini 2.5 Flash handles it in ~2 seconds with perfect JSON structure adherence.</p>
+    </div>
+    <div class="decision-card glass" style="padding:1.8rem;border-radius:var(--radius);cursor:pointer;transition:all 0.3s;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(16,185,129,0.1);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🕸️</div>
+        <div style="font-weight:600;font-size:0.95rem;">Neo4j for curriculum</div>
+      </div>
+      <p style="font-size:0.83rem;color:var(--text2);line-height:1.75;">Cypher queries naturally express prerequisite chains. Adding a new prerequisite is a single <code style="color:var(--cyan);font-size:0.78rem;">MERGE (a)-[:PRECEDES]->(b)</code> — no schema change, no migration needed.</p>
+    </div>
+    <div class="decision-card glass" style="padding:1.8rem;border-radius:var(--radius);cursor:pointer;transition:all 0.3s;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(139,92,246,0.12);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">📊</div>
+        <div style="font-weight:600;font-size:0.95rem;">Bloom's Taxonomy as difficulty axis</div>
+      </div>
+      <p style="font-size:0.83rem;color:var(--text2);line-height:1.75;">Universally accepted pedagogical framework. Faculty already design syllabi around it. Maps cleanly to MCQ / Descriptive / Coding question types at BTL 1–4.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<div class="section-divider"></div>
+<footer style="padding:4rem 0 3rem;background:var(--bg);">
+  <div class="container" style="text-align:center;">
+    <div style="font-family:var(--display);font-weight:700;font-size:1.5rem;background:linear-gradient(135deg,var(--indigo-light),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.75rem;">GraphEdu</div>
+    <p style="font-size:0.85rem;color:var(--text3);max-width:500px;margin:0 auto 2rem;line-height:1.7;">An AI-powered adaptive educational platform using GCN, Bayesian inference, and RAG pipelines to personalize learning at university scale.</p>
+    <div style="display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:2.5rem;">
+      <span class="pill pill-indigo">GCN · PyTorch Geometric</span>
+      <span class="pill pill-cyan">FAISS · all-MiniLM-L6-v2</span>
+      <span class="pill pill-emerald">LLaMA 3 · Ollama</span>
+      <span class="pill pill-amber">Gemini 2.5 Flash</span>
+      <span class="pill" style="background:rgba(139,92,246,0.12);color:#c4b5fd;border:1px solid rgba(139,92,246,0.25);">Neo4j · LangChain</span>
+    </div>
+    <div style="font-size:0.75rem;color:var(--text3);font-family:var(--mono);">GraphEdu · Architecture Overview · Built with Graph Neural Networks, Bayesian Inference & RAG</div>
+  </div>
+</footer>
+
+<script>
+// ── STARFIELD ──────────────────────────────────────────────────────────
+(function(){
+  const c=document.getElementById('starfield'),ctx=c.getContext('2d');
+  let W,H,stars=[];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  function mkStars(){stars=[];for(let i=0;i<220;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.4+0.2,a:Math.random(),da:Math.random()*0.008+0.002,vx:(Math.random()-0.5)*0.08,vy:(Math.random()-0.5)*0.08});}
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // nebula blobs
+    const g1=ctx.createRadialGradient(W*0.25,H*0.3,0,W*0.25,H*0.3,W*0.4);
+    g1.addColorStop(0,'rgba(99,102,241,0.07)');g1.addColorStop(1,'transparent');
+    ctx.fillStyle=g1;ctx.fillRect(0,0,W,H);
+    const g2=ctx.createRadialGradient(W*0.75,H*0.65,0,W*0.75,H*0.65,W*0.35);
+    g2.addColorStop(0,'rgba(6,182,212,0.05)');g2.addColorStop(1,'transparent');
+    ctx.fillStyle=g2;ctx.fillRect(0,0,W,H);
+    stars.forEach(s=>{
+      s.x+=s.vx;s.y+=s.vy;s.a+=s.da;
+      if(s.x<0)s.x=W;if(s.x>W)s.x=0;if(s.y<0)s.y=H;if(s.y>H)s.y=0;
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(200,215,255,${0.3+0.7*Math.abs(Math.sin(s.a))})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  resize();mkStars();draw();
+  window.addEventListener('resize',()=>{resize();mkStars();});
+})();
+
+// ── HERO WORD REVEAL ──────────────────────────────────────────────────
+document.querySelectorAll('#heroTitle .word').forEach((w,i)=>{
+  w.style.animationDelay=(0.4+i*0.1)+'s';
+  w.style.animation='fadeUp 0.5s forwards';
+});
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────────────
+const revIO=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>revIO.observe(el));
+
+// ── RESPONSIVE 2-COL ─────────────────────────────────────────────────
+const mq=window.matchMedia('(max-width:900px)');
+function applyMQ(){document.querySelectorAll('.two-col,.arch-cols,.decisions-grid').forEach(el=>{el.style.gridTemplateColumns=mq.matches?'1fr':'';});}
+applyMQ();mq.addEventListener('change',applyMQ);
+
+// ── FORCE GRAPH ───────────────────────────────────────────────────────
+(function(){
+  const canvas=document.getElementById('graphCanvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  let W,H,animId,weakMode=false,galaxyMode=false,hoveredNode=null,dragging=null,dragOffX=0,dragOffY=0;
+  const MODULES=[
+    {id:'m1',label:'Arrays',type:'module',color:'#6366f1',desc:'Contiguous memory allocation. Foundation of all sequential data structures.',x:0,y:0,vx:0,vy:0},
+    {id:'m2',label:'Linked Lists',type:'module',color:'#8b5cf6',desc:'Dynamic node-pointer chains. Enables O(1) insert/delete at known positions.',x:0,y:0,vx:0,vy:0},
+    {id:'m3',label:'Stacks & Queues',type:'module',color:'#06b6d4',desc:'LIFO/FIFO abstractions. Backbone of recursion, BFS, expression parsing.',x:0,y:0,vx:0,vy:0},
+    {id:'m4',label:'Trees',type:'module',color:'#10b981',desc:'Hierarchical structures. BST, AVL, Heaps — O(log n) operations.',x:0,y:0,vx:0,vy:0},
+    {id:'m5',label:'Graphs',type:'module',color:'#f59e0b',desc:'Generalised relational structures. BFS, DFS, Dijkstra, topological sort.',x:0,y:0,vx:0,vy:0},
+    {id:'m6',label:'Sorting',type:'module',color:'#ec4899',desc:'Comparative & non-comparative algorithms. QuickSort, MergeSort, HeapSort.',x:0,y:0,vx:0,vy:0},
+  ];
+  const PREREQS=[
+    {id:'p1',label:'Memory Alloc',type:'prereq',parent:'m1',weak:false,x:0,y:0,vx:0,vy:0},
+    {id:'p2',label:'Pointers',type:'prereq',parent:'m2',weak:true,x:0,y:0,vx:0,vy:0},
+    {id:'p3',label:'Arrays',type:'prereq',parent:'m2',weak:false,x:0,y:0,vx:0,vy:0},
+    {id:'p4',label:'Linked Lists',type:'prereq',parent:'m3',weak:true,x:0,y:0,vx:0,vy:0},
+    {id:'p5',label:'Recursion',type:'prereq',parent:'m4',weak:false,x:0,y:0,vx:0,vy:0},
+    {id:'p6',label:'BST Ops',type:'prereq',parent:'m5',weak:true,x:0,y:0,vx:0,vy:0},
+    {id:'p7',label:'Graph ADT',type:'prereq',parent:'m5',weak:false,x:0,y:0,vx:0,vy:0},
+    {id:'p8',label:'Comparators',type:'prereq',parent:'m6',weak:false,x:0,y:0,vx:0,vy:0},
+  ];
+  function allNodes(){return [...MODULES,...PREREQS];}
+  function visibleNodes(){
+    if(galaxyMode)return allNodes();
+    return[MODULES[0],...PREREQS.filter(p=>p.parent===MODULES[0].id)];
+  }
+  function visibleEdges(){
+    const nodes=visibleNodes(),ids=new Set(nodes.map(n=>n.id));
+    const edges=[];
+    PREREQS.forEach(p=>{if(ids.has(p.id)&&ids.has(p.parent))edges.push({src:p.id,tgt:p.parent});});
+    if(galaxyMode){
+      const mods=MODULES;
+      for(let i=0;i<mods.length-1;i++)edges.push({src:mods[i].id,tgt:mods[i+1].id,backbone:true});
+    }
+    return edges;
+  }
+  function resize(){
+    const rect=canvas.parentElement.getBoundingClientRect();
+    W=canvas.width=rect.width*window.devicePixelRatio||600;
+    H=canvas.height=480*window.devicePixelRatio||480;
+    canvas.style.width=rect.width+'px';canvas.style.height='480px';
+    ctx.scale(window.devicePixelRatio,window.devicePixelRatio);
+    initPositions();
+  }
+  function initPositions(){
+    const cx=(W/window.devicePixelRatio)/2,cy=(H/window.devicePixelRatio)/2;
+    if(galaxyMode){
+      MODULES.forEach((m,i)=>{const a=(i/MODULES.length)*Math.PI*2-Math.PI/2;m.x=cx+Math.cos(a)*130;m.y=cy+Math.sin(a)*130;m.vx=0;m.vy=0;});
+      PREREQS.forEach(p=>{const par=MODULES.find(m=>m.id===p.parent);p.x=(par?.x||cx)+(Math.random()-0.5)*60;p.y=(par?.y||cy)+(Math.random()-0.5)*60;p.vx=0;p.vy=0;});
+    } else {
+      MODULES[0].x=cx;MODULES[0].y=cy;MODULES[0].vx=0;MODULES[0].vy=0;
+      const ps=PREREQS.filter(p=>p.parent===MODULES[0].id);
+      ps.forEach((p,i)=>{const a=(i/ps.length)*Math.PI*2;p.x=cx+Math.cos(a)*140;p.y=cy+Math.sin(a)*140;p.vx=0;p.vy=0;});
+    }
+  }
+  function simulate(){
+    const nodes=visibleNodes(),edges=visibleEdges();
+    const W2=W/window.devicePixelRatio,H2=H/window.devicePixelRatio;
+    // repulsion
+    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+      const a=nodes[i],b=nodes[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.max(Math.sqrt(dx*dx+dy*dy),1),f=320/(d*d);
+      const fx=dx/d*f,fy=dy/d*f;a.vx-=fx;a.vy-=fy;b.vx+=fx;b.vy+=fy;
+    }
+    // springs
+    edges.forEach(e=>{
+      const a=nodes.find(n=>n.id===e.src),b=nodes.find(n=>n.id===e.tgt);
+      if(!a||!b)return;
+      const dx=b.x-a.x,dy=b.y-a.y,d=Math.max(Math.sqrt(dx*dx+dy*dy),1),L=e.backbone?220:110,f=(d-L)*0.04;
+      const fx=dx/d*f,fy=dy/d*f;a.vx+=fx;a.vy+=fy;b.vx-=fx;b.vy-=fy;
+    });
+    // center gravity
+    nodes.forEach(n=>{n.vx+=(W2/2-n.x)*0.003;n.vy+=(H2/2-n.y)*0.003;});
+    // integrate
+    nodes.forEach(n=>{if(n===dragging)return;n.vx*=0.78;n.vy*=0.78;n.x+=n.vx;n.y+=n.vy;n.x=Math.max(32,Math.min(W2-32,n.x));n.y=Math.max(32,Math.min(H2-32,n.y));});
+  }
+  function draw(){
+    const W2=W/window.devicePixelRatio,H2=H/window.devicePixelRatio;
+    ctx.clearRect(0,0,W2,H2);
+    const nodes=visibleNodes(),edges=visibleEdges();
+    // draw edges
+    edges.forEach(e=>{
+      const a=nodes.find(n=>n.id===e.src),b=nodes.find(n=>n.id===e.tgt);if(!a||!b)return;
+      ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+      ctx.strokeStyle=e.backbone?'rgba(99,102,241,0.4)':'rgba(100,116,139,0.3)';
+      ctx.lineWidth=e.backbone?2:1;ctx.stroke();
+      // arrow
+      const ang=Math.atan2(b.y-a.y,b.x-a.x),ar=12;
+      const tx=b.x-Math.cos(ang)*(ar+6),ty=b.y-Math.sin(ang)*(ar+6);
+      ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(tx-6*Math.cos(ang-0.4),ty-6*Math.sin(ang-0.4));ctx.lineTo(tx-6*Math.cos(ang+0.4),ty-6*Math.sin(ang+0.4));ctx.closePath();
+      ctx.fillStyle=e.backbone?'rgba(99,102,241,0.5)':'rgba(100,116,139,0.4)';ctx.fill();
+    });
+    // draw nodes
+    nodes.forEach(n=>{
+      const isWeak=weakMode&&n.type==='prereq'&&n.weak;
+      const r=n.type==='module'?20:13;
+      const col=isWeak?'#ef4444':(n.color||'#06b6d4');
+      if(isWeak){ctx.shadowBlur=18;ctx.shadowColor='rgba(239,68,68,0.7)';}
+      else if(n===hoveredNode){ctx.shadowBlur=14;ctx.shadowColor=col+'88';}
+      else{ctx.shadowBlur=0;}
+      ctx.beginPath();ctx.arc(n.x,n.y,r,0,Math.PI*2);
+      ctx.fillStyle=col;ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.shadowBlur=0;
+      ctx.fillStyle='#fff';ctx.font=`${n.type==='module'?'600 11px':'500 9px'} Inter,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(n.label,n.x,n.y+(n.type==='module'?26:19));
+    });
+  }
+  function loop(){simulate();draw();animId=requestAnimationFrame(loop);}
+
+  function hitTest(mx,my){
+    const nodes=visibleNodes();
+    for(let i=nodes.length-1;i>=0;i--){
+      const n=nodes[i],r=n.type==='module'?20:13,dx=mx-n.x,dy=my-n.y;
+      if(dx*dx+dy*dy<(r+4)*(r+4))return n;
+    }return null;
+  }
+  function getXY(e){
+    const rect=canvas.getBoundingClientRect(),dpr=window.devicePixelRatio;
+    const cx=e.touches?e.touches[0].clientX:e.clientX;
+    const cy2=e.touches?e.touches[0].clientY:e.clientY;
+    return{x:(cx-rect.left),y:(cy2-rect.top)};
+  }
+  canvas.addEventListener('mousemove',e=>{const{x,y}=getXY(e);if(dragging){dragging.x=x;dragging.y=y;return;}hoveredNode=hitTest(x,y);canvas.style.cursor=hoveredNode?'pointer':'grab';});
+  canvas.addEventListener('mousedown',e=>{const{x,y}=getXY(e);const n=hitTest(x,y);if(n){dragging=n;canvas.style.cursor='grabbing';}});
+  canvas.addEventListener('mouseup',e=>{
+    if(!dragging){return;}
+    const{x,y}=getXY(e);const n=hitTest(x,y);
+    if(n){showInfo(n);}
+    dragging=null;canvas.style.cursor='grab';
+  });
+  canvas.addEventListener('mouseleave',()=>{dragging=null;hoveredNode=null;});
+
+  function showInfo(n){
+    const card=document.getElementById('graphInfoCard');
+    const title=document.getElementById('graphInfoTitle');
+    const desc=document.getElementById('graphInfoDesc');
+    const type=document.getElementById('graphInfoType');
+    if(!card)return;
+    type.textContent=n.type==='module'?'Module':'Prerequisite';
+    title.textContent=n.label;
+    desc.textContent=n.desc||'A prerequisite concept that must be mastered before advancing to the parent module. The GCN propagates its mastery score to all dependent nodes.';
+    card.style.display='block';
+  }
+
+  // controls
+  document.getElementById('btnFocused')?.addEventListener('click',()=>{
+    galaxyMode=false;initPositions();
+    document.getElementById('btnFocused').classList.add('active');
+    document.getElementById('btnGalaxy').classList.remove('active');
+  });
+  document.getElementById('btnGalaxy')?.addEventListener('click',()=>{
+    galaxyMode=true;initPositions();
+    document.getElementById('btnGalaxy').classList.add('active');
+    document.getElementById('btnFocused').classList.remove('active');
+  });
+  document.getElementById('btnWeak')?.addEventListener('click',function(){
+    weakMode=!weakMode;this.textContent=weakMode?'✓ Weak Mode ON':'⚠ Weak Mode';
+    this.className='graph-btn'+(weakMode?' active-rose':'');
+  });
+  document.getElementById('btnReset')?.addEventListener('click',()=>{
+    weakMode=false;galaxyMode=false;
+    document.getElementById('btnFocused').classList.add('active');
+    document.getElementById('btnGalaxy').classList.remove('active');
+    document.getElementById('btnWeak').textContent='⚠ Weak Mode';
+    document.getElementById('btnWeak').className='graph-btn';
+    if(document.getElementById('graphInfoCard'))document.getElementById('graphInfoCard').style.display='none';
+    initPositions();
+  });
+
+  resize();loop();
+  window.addEventListener('resize',resize);
+})();
+
+// ── MC DROPOUT SIMULATOR ──────────────────────────────────────────────
+(function(){
+  const slider=document.getElementById('mcSlider');
+  const barsEl=document.getElementById('mcBars');
+  const meanEl=document.getElementById('mcMean');
+  const varEl=document.getElementById('mcVar');
+  const tEl=document.getElementById('tVal');
+  if(!slider)return;
+  const TRUE_MU=0.72;
+  function simulate(T){
+    const preds=[];for(let i=0;i<T;i++){const noise=(Math.random()-0.5)*0.28;preds.push(Math.max(0,Math.min(1,TRUE_MU+noise)));}
+    const mu=preds.reduce((a,b)=>a+b,0)/T;
+    const v=preds.reduce((a,b)=>a+(b-mu)**2,0)/T;
+    return{preds,mu,v};
+  }
+  function render(T){
+    const{preds,mu,v}=simulate(T);
+    tEl.textContent=T;
+    meanEl.textContent=mu.toFixed(3);
+    varEl.textContent=v.toFixed(4);
+    barsEl.innerHTML='';
+    preds.forEach(p=>{
+      const bar=document.createElement('div');
+      const h=Math.round(p*110)+8;
+      const isHigh=p>0.6;
+      bar.style.cssText=`flex:1;min-width:4px;max-width:18px;height:${h}px;border-radius:3px 3px 0 0;background:${isHigh?'rgba(239,68,68,0.7)':'rgba(99,102,241,0.6)'};transition:height 0.2s;`;
+      barsEl.appendChild(bar);
+    });
+    // flag logic
+    const flagged=mu>0.6&&v<0.04;
+    varEl.parentElement.style.background=flagged?'rgba(239,68,68,0.15)':'rgba(239,68,68,0.08)';
+    varEl.parentElement.style.borderColor=flagged?'rgba(239,68,68,0.45)':'rgba(239,68,68,0.2)';
+  }
+  render(5);
+  slider.addEventListener('input',()=>render(parseInt(slider.value)));
+})();
+
+// ── RAG DEMO ─────────────────────────────────────────────────────────
+(function(){
+  const btn=document.getElementById('ragRunBtn');
+  const out=document.getElementById('ragOutput');
+  const inp=document.getElementById('ragInput');
+  const steps=[0,1,2,3,4].map(i=>document.getElementById('ragStep'+i));
+  if(!btn)return;
+  const RESPONSES={
+    'binary search tree':'A Binary Search Tree is a hierarchical node-based structure where each node\'s left subtree holds values less than the node, and the right subtree holds greater values. BST enables O(log n) average-case search, insert, and delete operations when balanced. In-order traversal of a BST always yields elements in ascending sorted order. Balanced variants like AVL Trees guarantee O(log n) worst-case by enforcing height invariants. Mastering BST is critical before studying self-balancing trees, heaps, and graph shortest-path algorithms.',
+    'linked list':'A Linked List is a linear data structure where each element (node) stores data and a pointer to the next node. Unlike arrays, linked lists support O(1) insert/delete at a known position without shifting elements. The trade-off is O(n) access time since there is no random indexing. Understanding pointer manipulation in linked lists is the prerequisite for grasping trees, graphs, and hash table chaining.',
+    'sorting':'Sorting algorithms organise elements into a defined order, enabling efficient binary search and downstream processing. Comparison-based sorts have an Ω(n log n) lower bound; non-comparison sorts like Counting Sort break this barrier for bounded integer inputs. Divide-and-conquer approaches like Merge Sort guarantee O(n log n) worst-case with stable ordering, making them industry defaults for general-purpose sorting.',
+    'stack':'A Stack is a LIFO (Last-In First-Out) abstract data structure supporting push, pop, and peek in O(1). It models function call frames, expression parsing (balanced parentheses), and undo operations. The call stack maintained by the OS during program execution is a direct application of this structure.',
+  };
+  function getResp(topic){
+    const key=Object.keys(RESPONSES).find(k=>topic.toLowerCase().includes(k));
+    return key?RESPONSES[key]:`${topic} is a fundamental data structure concept covered in the GraphEdu curriculum. The RAG pipeline retrieved relevant textbook chunks via FAISS L2 similarity search and generated this grounded remedial plan using LLaMA 3 at temperature 0.3 — ensuring factual accuracy without hallucination. Review the prerequisite concepts listed on the knowledge graph before attempting higher BTL questions on this topic.`;
+  }
+  function highlightStep(i){
+    steps.forEach((s,j)=>{if(!s)return;s.style.background=j===i?'rgba(99,102,241,0.1)':'var(--surface)';s.style.borderColor=j===i?'rgba(99,102,241,0.3)':'var(--border)';});
+  }
+  function typewriter(el,text,cb){
+    el.innerHTML='';let i=0;
+    const t=setInterval(()=>{el.innerHTML+=text[i];i++;if(i>=text.length){clearInterval(t);if(cb)cb();}},16);
+  }
+  btn.addEventListener('click',()=>{
+    const topic=inp.value.trim()||'Binary Search Tree';
+    out.innerHTML='<span style="color:var(--text3);font-family:var(--mono);font-size:0.78rem;">// Running pipeline...</span>';
+    btn.disabled=true;btn.textContent='Running...';
+    let step=0;
+    const iv=setInterval(()=>{
+      highlightStep(step);step++;
+      if(step>=5){
+        clearInterval(iv);
+        highlightStep(-1);
+        setTimeout(()=>{
+          out.style.color='var(--emerald)';
+          const resp=getResp(topic);
+          typewriter(out,resp,()=>{out.style.color='var(--text2)';});
+          btn.disabled=false;btn.textContent='Run Pipeline ▶';
+        },300);
+      }
+    },500);
+  });
+})();
+
+// ── BTL SIMULATOR ─────────────────────────────────────────────────────
+(function(){
+  const QUESTIONS={
+    1:['Define what a Stack data structure is.','What does LIFO stand for?','Name the two primary operations of a Stack.','What is a Binary Search Tree?'],
+    2:['Explain how a Queue differs from a Stack.','Describe how in-order BST traversal works.','Explain why Merge Sort is preferred over Bubble Sort.','How does a hash collision occur?'],
+    3:['Implement a function to check for balanced parentheses using a Stack.','Write pseudocode for BFS traversal of a graph.','Solve: find the kth largest element in an unsorted array.','Implement in-order traversal without recursion.'],
+    4:['Compare DFS and BFS for shortest path in an unweighted graph — when does each fail?','Analyse the trade-off between AVL Trees and Red-Black Trees for database indexing.','Evaluate why QuickSort is preferred over MergeSort despite worse worst-case complexity.','Compare hash tables and BSTs for a dictionary with frequent range queries.'],
+  };
+  let btl=1,streak=0,totalScore=0,totalCount=0;
+  const levelEl=document.getElementById('btlLevel');
+  const streakEl=document.getElementById('btlStreak');
+  const avgEl=document.getElementById('btlAvg');
+  const msgEl=document.getElementById('btlMsg');
+  const qEl=document.getElementById('btlQuestion');
+  if(!levelEl)return;
+  function pickQ(){const qs=QUESTIONS[btl];return qs[Math.floor(Math.random()*qs.length)];}
+  function updatePyramid(){
+    document.querySelectorAll('.bloom-level').forEach(el=>{
+      const lv=parseInt(el.dataset.level);
+      const isActive=lv===btl;
+      el.style.opacity=isActive?'1':'0.3';
+      el.style.fontWeight=isActive?'700':'600';
+      const ind=lv===1?'← current':lv===btl?'← current':'';
+      const base=el.textContent.replace(/← current/g,'').trim();
+      el.textContent=isActive?base+' ← current':base;
+    });
+    levelEl.textContent=btl;streakEl.textContent=streak;
+    avgEl.textContent=totalCount?Math.round(totalScore/totalCount)+'%':'—';
+  }
+  function showMsg(text,good){
+    msgEl.style.display='block';msgEl.textContent=text;
+    msgEl.style.background=good?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.12)';
+    msgEl.style.color=good?'#6ee7b7':'#fca5a5';
+    msgEl.style.border=`1px solid ${good?'rgba(16,185,129,0.3)':'rgba(239,68,68,0.25)'}`;
+    setTimeout(()=>{msgEl.style.display='none';},2200);
+  }
+  function answer(correct){
+    const score=correct?(Math.floor(Math.random()*25)+75):(Math.floor(Math.random()*40)+5);
+    totalScore+=score;totalCount++;
+    if(correct){streak++;if(streak>=2){const prev=btl;btl=Math.min(4,btl+1);streak=0;if(btl>prev)showMsg('🚀 Level UP! Difficulty increased.',true);}}
+    else{streak=0;const prev=btl;btl=Math.max(1,btl-1);showMsg('Level adjusted — consolidating understanding.',false);}
+    updatePyramid();qEl.textContent=pickQ();
+  }
+  document.getElementById('btlCorrect')?.addEventListener('click',()=>answer(true));
+  document.getElementById('btlWrong')?.addEventListener('click',()=>answer(false));
+  qEl.textContent=pickQ();updatePyramid();
+})();
+
+// ── DECISION CARDS HOVER ─────────────────────────────────────────────
+document.querySelectorAll('.decision-card').forEach(card=>{
+  card.addEventListener('mouseenter',()=>{card.style.transform='translateY(-3px)';card.style.boxShadow='0 12px 40px rgba(99,102,241,0.12)';card.style.borderColor='rgba(99,102,241,0.2)';});
+  card.addEventListener('mouseleave',()=>{card.style.transform='';card.style.boxShadow='';card.style.borderColor='';});
+});
+
+// ── NAV SCROLL STYLE ─────────────────────────────────────────────────
+window.addEventListener('scroll',()=>{
+  const nav=document.getElementById('navbar');
+  if(nav)nav.style.background=window.scrollY>60?'rgba(2,5,9,0.96)':'rgba(2,5,9,0.8)';
+});
+</script>
+</body>
+</html>
+
