@@ -317,7 +317,27 @@ h2.section-title { font-family: var(--display); font-size: clamp(2rem, 4vw, 3.2r
       <p class="lead">The GCN doesn't just look at a student's score on Trees — it asks: <em>what were their scores on Linked Lists and Pointers first?</em> Prerequisite mastery flows through the graph.</p>
       <div style="margin-top:2rem; padding:1.5rem; border-radius:var(--radius-sm); background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.2);">
         <div style="font-family:var(--mono); font-size:0.8rem; color:var(--text3); margin-bottom:0.75rem;">// Core GCN Layer Operation (Kipf &amp; Welling, 2016)</div>
-        <div style="font-family:var(--mono); font-size:1.1rem; color:var(--cyan-light); letter-spacing:0.02em; line-height:2;">H<sup>(l+1)</sup> = σ( D̃<sup>−½</sup> Ã D̃<sup>−½</sup> H<sup>(l)</sup> W<sup>(l)</sup> )</div>
+        <div style="text-align:center; padding:1.4rem 0.5rem 1rem; overflow-x:auto;">
+          <span style="
+            display:inline-block;
+            font-family: 'Georgia', 'Times New Roman', 'STIX Two Math', serif;
+            font-size: clamp(1.45rem, 3.5vw, 2rem);
+            color: #e0e7ff;
+            letter-spacing: 0.03em;
+            line-height: 1;
+            white-space: nowrap;
+          ">
+            <span style="color:#a5b4fc;">H</span><sup style="font-size:0.52em; vertical-align:0.72em; color:#a5b4fc;">(l+1)</sup>
+            <span style="color:#e2e8f0; margin:0 0.35em;">=</span>
+            <span style="color:#38bdf8;">σ</span><span style="color:#94a3b8;">(</span>
+            <span style="color:#34d399; font-style:italic;">D̃</span><sup style="font-size:0.5em; vertical-align:0.75em; color:#34d399;">−½</sup>
+            <span style="color:#c084fc; font-style:italic; margin:0 0.2em;">Ã</span>
+            <span style="color:#34d399; font-style:italic;">D̃</span><sup style="font-size:0.5em; vertical-align:0.75em; color:#34d399;">−½</sup>
+            <span style="color:#a5b4fc; margin-left:0.25em;">H</span><sup style="font-size:0.52em; vertical-align:0.72em; color:#a5b4fc;">(l)</sup>
+            <span style="color:#fbbf24; margin-left:0.2em;">W</span><sup style="font-size:0.52em; vertical-align:0.72em; color:#fbbf24;">(l)</sup>
+            <span style="color:#94a3b8;">)</span>
+          </span>
+        </div>
         <div style="margin-top:1rem; display:flex; flex-direction:column; gap:0.4rem;">
           <div style="font-size:0.8rem; color:var(--text2);"><span style="color:var(--indigo-light); font-family:var(--mono);">Ã</span> = A + I &nbsp;— adjacency matrix with self-loops</div>
           <div style="font-size:0.8rem; color:var(--text2);"><span style="color:var(--indigo-light); font-family:var(--mono);">D̃</span> = degree matrix of Ã (normalisation)</div>
@@ -355,14 +375,18 @@ h2.section-title { font-family: var(--display); font-size: clamp(2rem, 4vw, 3.2r
           <input type="range" id="mcSlider" min="1" max="50" value="5" style="width:100%; accent-color:var(--indigo); cursor:pointer; height:6px;"/>
         </div>
         <div id="mcBars" style="display:flex; gap:6px; align-items:flex-end; height:140px; margin-bottom:1rem; padding:0 4px;"></div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
-          <div style="padding:1rem; background:rgba(99,102,241,0.1); border-radius:var(--radius-sm); text-align:center; border:1px solid rgba(99,102,241,0.2);">
-            <div id="mcMean" style="font-family:var(--mono); font-size:1.4rem; font-weight:700; color:var(--indigo-light);">0.72</div>
-            <div style="font-size:0.72rem; color:var(--text3); margin-top:0.2rem;">μ (Pred. Mean)</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem; margin-top:1rem;">
+          <div style="padding:0.9rem 0.6rem; background:rgba(99,102,241,0.1); border-radius:var(--radius-sm); text-align:center; border:1px solid rgba(99,102,241,0.2);">
+            <div id="mcMean" style="font-family:var(--mono); font-size:1.25rem; font-weight:700; color:var(--indigo-light);">0.720</div>
+            <div style="font-size:0.68rem; color:var(--text3); margin-top:0.25rem;">μ (Pred. Mean)</div>
           </div>
-          <div style="padding:1rem; background:rgba(239,68,68,0.08); border-radius:var(--radius-sm); text-align:center; border:1px solid rgba(239,68,68,0.2);">
-            <div id="mcVar" style="font-family:var(--mono); font-size:1.4rem; font-weight:700; color:#fca5a5;">0.031</div>
-            <div style="font-size:0.72rem; color:var(--text3); margin-top:0.2rem;">σ² (Uncertainty)</div>
+          <div id="mcVarCard" style="padding:0.9rem 0.6rem; background:rgba(239,68,68,0.08); border-radius:var(--radius-sm); text-align:center; border:1px solid rgba(239,68,68,0.2);">
+            <div id="mcVar" style="font-family:var(--mono); font-size:1.25rem; font-weight:700; color:#fca5a5;">0.0312</div>
+            <div style="font-size:0.68rem; color:var(--text3); margin-top:0.25rem;">σ² (Uncertainty)</div>
+          </div>
+          <div style="padding:0.9rem 0.6rem; background:rgba(16,185,129,0.08); border-radius:var(--radius-sm); text-align:center; border:1px solid rgba(16,185,129,0.2);">
+            <div id="mcCost" style="font-family:var(--mono); font-size:1.25rem; font-weight:700; color:#6ee7b7;">10%</div>
+            <div style="font-size:0.68rem; color:var(--text3); margin-top:0.25rem;">⚡ Compute Cost</div>
           </div>
         </div>
       </div>
@@ -840,32 +864,69 @@ applyMQ();mq.addEventListener('change',applyMQ);
   const barsEl=document.getElementById('mcBars');
   const meanEl=document.getElementById('mcMean');
   const varEl=document.getElementById('mcVar');
+  const varCard=document.getElementById('mcVarCard');
+  const costEl=document.getElementById('mcCost');
   const tEl=document.getElementById('tVal');
   if(!slider)return;
   const TRUE_MU=0.72;
+
+  // Uncertainty: exponential decay plateauing at T=20
+  // σ²(T) = FLOOR + (PEAK - FLOOR) * e^(-k*(T-1))
+  // Tuned so: T=1 → ~0.065, T=5 → ~0.032, T=20 → ~0.006, T=50 → ~0.006
+  const PEAK=0.065, FLOOR=0.0058, K=0.18;
+  function uncertainty(T){ return FLOOR+(PEAK-FLOOR)*Math.exp(-K*(T-1)); }
+
+  // Cost: exponential growth, anchored at T=1→~10%, T=30→150%
+  // cost(T) = A * e^(B*(T-1)),  A=10, B=ln(15)/29
+  const COST_A=10, COST_B=Math.log(15)/29;
+  function cost(T){ return COST_A*Math.exp(COST_B*(T-1)); }
+
   function simulate(T){
-    const preds=[];for(let i=0;i<T;i++){const noise=(Math.random()-0.5)*0.28;preds.push(Math.max(0,Math.min(1,TRUE_MU+noise)));}
+    const preds=[];
+    for(let i=0;i<T;i++){
+      // Noise scales down as T grows, mirroring the uncertainty curve
+      const noiseScale=0.08+0.20*Math.exp(-K*(T-1)/PEAK*FLOOR);
+      const noise=(Math.random()-0.5)*2*noiseScale;
+      preds.push(Math.max(0,Math.min(1,TRUE_MU+noise)));
+    }
     const mu=preds.reduce((a,b)=>a+b,0)/T;
-    const v=preds.reduce((a,b)=>a+(b-mu)**2,0)/T;
-    return{preds,mu,v};
+    return{preds,mu};
   }
+
   function render(T){
-    const{preds,mu,v}=simulate(T);
+    const{preds,mu}=simulate(T);
+    const v=uncertainty(T);
+    const c=cost(T);
     tEl.textContent=T;
     meanEl.textContent=mu.toFixed(3);
     varEl.textContent=v.toFixed(4);
+    costEl.textContent=c.toFixed(1)+'%';
+
+    // Bars
     barsEl.innerHTML='';
     preds.forEach(p=>{
       const bar=document.createElement('div');
       const h=Math.round(p*110)+8;
-      const isHigh=p>0.6;
-      bar.style.cssText=`flex:1;min-width:4px;max-width:18px;height:${h}px;border-radius:3px 3px 0 0;background:${isHigh?'rgba(239,68,68,0.7)':'rgba(99,102,241,0.6)'};transition:height 0.2s;`;
+      bar.style.cssText=`flex:1;min-width:4px;max-width:18px;height:${h}px;border-radius:3px 3px 0 0;background:${p>0.6?'rgba(239,68,68,0.7)':'rgba(99,102,241,0.6)'};transition:height 0.2s;`;
       barsEl.appendChild(bar);
     });
-    // flag logic
-    const flagged=mu>0.6&&v<0.04;
-    varEl.parentElement.style.background=flagged?'rgba(239,68,68,0.15)':'rgba(239,68,68,0.08)';
-    varEl.parentElement.style.borderColor=flagged?'rgba(239,68,68,0.45)':'rgba(239,68,68,0.2)';
+
+    // Uncertainty card: flash red when flagged (low variance + high prob)
+    const flagged=mu>0.6&&v<0.012;
+    if(varCard){
+      varCard.style.background=flagged?'rgba(239,68,68,0.18)':'rgba(239,68,68,0.08)';
+      varCard.style.borderColor=flagged?'rgba(239,68,68,0.5)':'rgba(239,68,68,0.2)';
+    }
+
+    // Cost card: colour shifts green → amber → red as cost rises
+    const costHue=c<80?'rgba(16,185,129,0.08)':c<130?'rgba(245,158,11,0.1)':'rgba(239,68,68,0.1)';
+    const costBorder=c<80?'rgba(16,185,129,0.2)':c<130?'rgba(245,158,11,0.25)':'rgba(239,68,68,0.3)';
+    const costTxtCol=c<80?'#6ee7b7':c<130?'#fde68a':'#fca5a5';
+    if(costEl){
+      costEl.parentElement.style.background=costHue;
+      costEl.parentElement.style.borderColor=costBorder;
+      costEl.style.color=costTxtCol;
+    }
   }
   render(5);
   slider.addEventListener('input',()=>render(parseInt(slider.value)));
